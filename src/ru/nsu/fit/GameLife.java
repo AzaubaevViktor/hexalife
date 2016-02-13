@@ -1,4 +1,7 @@
 package ru.nsu.fit;
+import ru.nsu.fit.pixel2d.PixelDrawer;
+import ru.nsu.fit.pixel2d.vectors.Vec2dI;
+
 import javax.swing.SwingUtilities;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -33,6 +36,7 @@ class MyPanel extends JPanel {
     private int squareX = 50;
     private int squareY = 50;
     private int hexDiameter = 50;
+    PixelDrawer drawer = new PixelDrawer();
 
     public MyPanel() {
         setBorder(BorderFactory.createLineBorder(Color.black));
@@ -64,48 +68,11 @@ class MyPanel extends JPanel {
         return new Dimension(250, 200);
     }
 
-    public static int getItself(int itself, int dummy)
-    {
-        return itself;
-    }
-
-    private void drawLine(Graphics g, Integer x0, Integer y0, Integer x1, Integer y1, Color color) {
-        boolean steep = Math.abs(y1 - y0) > Math.abs(x1 - x0);
-        if (steep) {
-            //noinspection SuspiciousNameCombination
-            x0 = getItself(y0, y0 = x0);
-            //noinspection SuspiciousNameCombination
-            x1 = getItself(y1, y1 = x1);
-        }
-
-        if (x0 > x1) {
-            x0 = getItself(x1, x1 = x0);
-            y0 = getItself(y1, y1 = y0);
-        }
-
-        int dx = x1 - x0;
-        int dy = Math.abs(y1 - y0);
-        int error = dx / 2;
-
-        int ystep = (y0 < y1) ? 1 : -1;
-
-        int y = y0;
-        for (int x = x0; x <= x1; x++) {
-            int _x = steep ? y : x;
-            int _y = steep ? x : y;
-            g.drawLine(_x, _y, _x, _y);
-            error -= dy;
-            if (error < 0) {
-                y += ystep;
-                error += dx;
-            }
-        }
-    }
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        drawHexAround(g, squareX, squareY);
         Graphics2D g2 = (Graphics2D) g;
+        drawHexAround(g, squareX, squareY);
     }
 
     protected void drawHexAround(Graphics g, int x, int y) {
@@ -118,14 +85,16 @@ class MyPanel extends JPanel {
                 {- hexDiameter / 2., - hexDiameter * sin60},
                 {hexDiameter / 2., - hexDiameter * sin60}
         };
-        for (int i = 0; i < 7; i++) {
-            drawLine(g,
-                    x + (int) matrix[i % 6][0],
-                    y + (int) matrix[i % 6][1],
-                    x + (int) matrix[(i + 1) % 6][0],
-                    y + (int) matrix[(i + 1) % 6][1],
-                    Color.BLACK
-            );
-        }
+//        for (int i = 0; i < 7; i++) {
+//            drawLine(g,
+//                    x + (int) matrix[i % 6][0],
+//                    y + (int) matrix[i % 6][1],
+//                    x + (int) matrix[(i + 1) % 6][0],
+//                    y + (int) matrix[(i + 1) % 6][1],
+//                    Color.BLACK,
+//                    7
+//            );
+//        }
+        drawer.drawLine1(g, new Vec2dI(100, 100), new Vec2dI(x, y), Color.black);
     }
 }
