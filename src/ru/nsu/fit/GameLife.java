@@ -1,6 +1,6 @@
 package ru.nsu.fit;
 import ru.nsu.fit.pixel2d.PixelDrawer;
-import ru.nsu.fit.pixel2d.vectors.Vec2dI;
+import ru.nsu.fit.pixel2d.vectors.Vec2d;
 
 import javax.swing.SwingUtilities;
 import javax.swing.JFrame;
@@ -9,7 +9,6 @@ import javax.swing.BorderFactory;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 public class GameLife {
 
@@ -34,9 +33,9 @@ public class GameLife {
 
 class MyPanel extends JPanel {
 
-    private Vec2dI p0 = new Vec2dI(300, 300);
-    private Vec2dI p1 = new Vec2dI(200, 250);
-    private Vec2dI p2 = new Vec2dI(420, 104);
+    private Vec2d p0 = new Vec2d(300, 300);
+    private Vec2d p1 = new Vec2d(200, 250);
+    private Vec2d p2 = new Vec2d(420, 104);
     private int hexDiameter = 50;
     PixelDrawer drawer = new PixelDrawer();
 
@@ -45,7 +44,7 @@ class MyPanel extends JPanel {
 
         addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                changeCoord(e.getButton(), new Vec2dI(e.getX(), e.getY()));
+                changeCoord(e.getButton(), new Vec2d(e.getX(), e.getY()));
             }
         });
 
@@ -54,13 +53,13 @@ class MyPanel extends JPanel {
                 int b1 = MouseEvent.BUTTON1_DOWN_MASK;
                 int b3 = MouseEvent.BUTTON3_DOWN_MASK;
                 int button = (e.getModifiersEx() & b1) == b1 ? 1 : (e.getModifiersEx() & b3) == b3 ? 3 : 0;
-                changeCoord(button, new Vec2dI(e.getX(), e.getY()));
+                changeCoord(button, new Vec2d(e.getX(), e.getY()));
             }
         });
 
     }
 
-    private void changeCoord(int button, Vec2dI p) {
+    private void changeCoord(int button, Vec2d p) {
         if (button == 1) {
             repaint();
             if (!p1.eq(p)) p1 = p;
@@ -84,27 +83,10 @@ class MyPanel extends JPanel {
     }
 
     protected void drawHexAround(Graphics g) {
-        double sin60 = Math.sqrt(3)/2.;
-        double[][] matrix = {
-                {hexDiameter , 0},
-                {hexDiameter / 2., hexDiameter * sin60},
-                {- hexDiameter / 2., hexDiameter * sin60},
-                {- hexDiameter, 0},
-                {- hexDiameter / 2., - hexDiameter * sin60},
-                {hexDiameter / 2., - hexDiameter * sin60}
-        };
-//        for (int i = 0; i < 7; i++) {
-//            drawLine(g,
-//                    x + (int) matrix[i % 6][0],
-//                    y + (int) matrix[i % 6][1],
-//                    x + (int) matrix[(i + 1) % 6][0],
-//                    y + (int) matrix[(i + 1) % 6][1],
-//                    Color.BLACK,
-//                    7
-//            );
-//        }
-//        drawer.drawLine1(g, new Vec2dI(300, 300), new Vec2dI(x, y), Color.black);
-        drawer.fillTriangle(g, p0, p1, p2, Color.black);
+        drawer.drawFillTriangle(g, p0, p1, p2, Color.black);
+        drawer.drawFillHexagonal(g, new Vec2d(500, 500), 200, Color.black);
+        drawer.drawFillTriangle(g, new Vec2d(100, 100), new Vec2d(150, 50), new Vec2d(200, 100), Color.black);
+        drawer.drawFillTriangle(g, new Vec2d(100, 100), new Vec2d(150, 150), new Vec2d(200, 100), Color.black);
     }
 
 }
