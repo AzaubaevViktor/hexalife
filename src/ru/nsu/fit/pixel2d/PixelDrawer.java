@@ -3,7 +3,6 @@ package ru.nsu.fit.pixel2d;
 import ru.nsu.fit.pixel2d.vectors.Vec2d;
 import ru.nsu.fit.pixel2d.vectors.Vec2dI;
 
-import javax.swing.text.MaskFormatter;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -34,7 +33,7 @@ public class PixelDrawer {
 
         int error = (dp.getX() / 2);
 
-        int ystep = (dp.getY() > 0) ? 1 : -1;
+        int yStep = (dp.getY() > 0) ? 1 : -1;
 
         List<Vec2dI> pixels = new ArrayList<Vec2dI>();
 
@@ -49,7 +48,7 @@ public class PixelDrawer {
             pixels.add(new Vec2dI(_x, _y));
             error -= Math.abs(dy);
             if (error < 0) {
-                y += ystep;
+                y += yStep;
                 error += dx;
             }
         }

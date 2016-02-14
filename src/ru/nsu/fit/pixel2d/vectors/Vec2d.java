@@ -82,7 +82,7 @@ public class Vec2d {
     }
 
     public void normalization() {
-        double len = lenght();
+        double len = length();
         x /= len;
         y /= len;
     }
@@ -107,7 +107,7 @@ public class Vec2d {
         other.y = res;
     }
 
-    public double lenght() {
+    public double length() {
         return Math.sqrt(x * x + y * y);
     }
 

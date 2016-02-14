@@ -1,7 +1,5 @@
 package ru.nsu.fit.pixel2d.vectors;
 
-import java.util.Map;
-
 public class Vec2dI {
     // Класс для работы с ТОЧКАМИ НА ЭКРАНЕ. Особенность в целочисленности
     private int x = 0;

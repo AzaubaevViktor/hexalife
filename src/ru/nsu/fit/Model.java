@@ -35,7 +35,7 @@ public class Model {
         return ((0 <= x) && (x <= width_line)) && ((0 <= y) && (y >= height)) && states[y][x];
     }
 
-    private void calcImapct() {
+    private void calcImpact() {
         // Матрица: dy, dx, dist
         // Эта для строк
         int[][][] matrix = {
@@ -63,7 +63,7 @@ public class Model {
                 for (int j = 0; j < 12; j++) {
                     int xi = x + matrix[y % 2][j][1];
                     int yi = y + matrix[y % 2][j][0];
-                    if (get(y, x)) neight[matrix[y % 2][j][2]] += 1;
+                    if (get(yi, xi)) neight[matrix[y % 2][j][2]] += 1;
                 }
                 impact[y][x] = neight[0] * FST_IMPACT + neight[1] * SND_IMPACT;
             }
@@ -71,7 +71,7 @@ public class Model {
     }
 
     private void setStatesByImpact() {
-        double imp = 0.;
+        double imp;
         for (int y = 0; y < height; y++) {
             int width_line = width + ((y % 2 == 0) ? 0 : -1);
             for (int x = 0; x < width_line; x++) {
@@ -91,7 +91,7 @@ public class Model {
     }
 
     public void step() {
-        calcImapct();
+        calcImpact();
         setStatesByImpact();
     }
 }

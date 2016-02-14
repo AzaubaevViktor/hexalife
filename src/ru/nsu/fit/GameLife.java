@@ -38,7 +38,7 @@ class MyPanel extends JPanel {
     private Vec2dI p1 = new Vec2dI(200, 250);
     private Vec2dI p2 = new Vec2dI(420, 104);
     private int hexDiameter = 50;
-    PixelDrawer drawer = new PixelDrawer();
+    private PixelDrawer drawer = new PixelDrawer();
 
     public MyPanel() {
         setBorder(BorderFactory.createLineBorder(Color.black));
@@ -79,7 +79,6 @@ class MyPanel extends JPanel {
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D) g;
         drawHexAround(g);
     }
 
@@ -92,7 +91,7 @@ class MyPanel extends JPanel {
         // тест на 3 точки на одной прямой
         drawer.drawFillTriangle(g, new Vec2dI(200, 200), new Vec2dI(400, 250), new Vec2dI(600, 300), Color.black);
         // толстые линии
-        drawer.drawLine(g, new Vec2dI(500, 100), p2, (int) new Vec2d(p1).lenght(), Color.black);
+        drawer.drawLine(g, new Vec2dI(500, 100), p2, (int) new Vec2d(p1).length(), Color.black);
     }
 
 }
