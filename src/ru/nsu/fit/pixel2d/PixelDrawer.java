@@ -10,14 +10,14 @@ import java.util.List;
 
 public class PixelDrawer {
 
-    private double sin60 = Math.sqrt(3)/2.;
+    private double cos30 = Math.sqrt(3)/2.;
     private Vec2d[] hexCoefMatrix = {
-            new Vec2d(1, 0),
-            new Vec2d(1 / 2., 1 * sin60),
-            new Vec2d(-1 / 2., 1 * sin60),
-            new Vec2d(-1, 0),
-            new Vec2d(-1 / 2., -1 * sin60),
-            new Vec2d(1 / 2., -1 * sin60)
+            new Vec2d(cos30, 1 / 2.),
+            new Vec2d(0, 1),
+            new Vec2d(-cos30, 1 / 2.),
+            new Vec2d(-cos30, - 1 / 2.),
+            new Vec2d(0, -1),
+            new Vec2d(cos30, -1 / 2.)
     };
 
     private <T> T getItself(T itself, T dummy) {
