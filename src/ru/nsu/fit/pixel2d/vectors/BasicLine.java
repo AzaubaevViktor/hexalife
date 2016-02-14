@@ -1,49 +1,43 @@
 package ru.nsu.fit.pixel2d.vectors;
 
 public class BasicLine {
+    private int thickness;
     private int x0;
     private int y0;
     private int x1;
     private int y1;
 
-    public BasicLine(int x0, int y0, int x1, int y1) {
-        set(x0, y0, x1, y1);
+    public BasicLine(int x0, int y0, int x1, int y1, int thickness) {
+        set(x0, y0, x1, y1, thickness);
     }
 
-    public BasicLine(Vec2dI start, int length) {
-        set(start, length);
+    public BasicLine(Vec2dI start, Vec2dI end, int thickness) {
+        set(start, end, thickness);
     }
 
-    public BasicLine(Vec2dI start, Vec2dI end) {
-        set(start, end);
-    }
-
-    public BasicLine(Vec2dI dot) {
+    public BasicLine(Vec2dI dot, int thickness) {
         x0 = x1 = dot.getX();
         y0 = y1 = dot.getY();
+        this.thickness = thickness;
     }
 
-    public void set(int x0, int y0, int x1, int y1) {
+    public void set(int x0, int y0, int x1, int y1, int thickness) {
         this.x0 = x0;
         this.y0 = y0;
         this.x1 = x1;
         this.y1 = y1;
+        this.thickness = thickness;
     }
 
-    public void set(Vec2dI start, Vec2dI end) {
+    public void set(Vec2dI start, Vec2dI end, int thickness) {
         x0 = start.getX();
         y0 = start.getY();
         x1 = end.getX();
         y1 = end.getY();
+        this.thickness = thickness;
     }
 
-    public void set(Vec2dI start, int length) {
-        int x = start.getX();
-        int y = start.getY();
-        set(x, y, x + length, y);
-    }
-
-    public boolean isHorisontal() {
+    public boolean isHorizontal() {
         return y0 == y1;
     }
 
@@ -73,5 +67,17 @@ public class BasicLine {
 
     public Vec2dI getEnd() {
         return new Vec2dI(x1, y1);
+    }
+
+    public String toString() {
+        return "[" + getStart().toString() + " -> " + getEnd().toString() + "]";
+    }
+
+    public int getThickness() {
+        return thickness;
+    }
+
+    public void setThickness(int thickness) {
+        this.thickness = thickness;
     }
 }
