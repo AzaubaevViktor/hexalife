@@ -90,6 +90,8 @@ class MyPanel extends JPanel {
         drawer.drawFillTriangle(g, new Vec2d(100, 100), new Vec2d(150, 150), new Vec2d(200, 100), Color.black);
         // тест на 3 точки на одной прямой
         drawer.drawFillTriangle(g, new Vec2d(200, 200), new Vec2d(400, 250), new Vec2d(600, 300), Color.black);
+        // толстые линии
+        drawer.drawLine(g, new Vec2d(500, 100), p2, (int) p1.lenght(), Color.black);
     }
 
 }

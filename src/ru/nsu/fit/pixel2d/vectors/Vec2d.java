@@ -9,6 +9,11 @@ public class Vec2d {
         this.y = y;
     }
 
+    public Vec2d(Vec2d p0) {
+        x = p0.getX();
+        y = p0.getY();
+    }
+
     public double getX() {
         // Если тут будет более сложная логика, не забывать переделать везде на getX()
         return x;
@@ -53,8 +58,28 @@ public class Vec2d {
         return new Vec2d(x - other.x, y - other.y);
     }
 
-    public Vec2d multipledouble(double other) {
+    public Vec2d multiple(double other) {
         return new Vec2d((x * other), (y * other));
+    }
+
+    public void turnBack() {
+        // Разворачивает вектор
+        x = -x;
+        y = -y;
+    }
+
+    public Vec2d normal() {
+        // Возвращает нормаль, которая всегда смотрит вверх (в сторону увеличения координаты y
+        //noinspection SuspiciousNameCombination
+        Vec2d nrml = new Vec2d(-y, x);
+        if (x < 0) nrml.turnBack();
+        return nrml;
+    }
+
+    public void normalization() {
+        double len = lenght();
+        x /= len;
+        y /= len;
     }
 
     public void move(Vec2d other) {

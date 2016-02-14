@@ -1,6 +1,5 @@
 package ru.nsu.fit.pixel2d;
 
-import com.sun.org.apache.bcel.internal.generic.NEW;
 import ru.nsu.fit.pixel2d.vectors.Vec2d;
 
 import java.awt.*;
@@ -52,10 +51,6 @@ public class PixelDrawer {
         return pixels;
     }
 
-    public void drawLine1(Graphics g, Vec2d p0, Vec2d p1, Color color) {
-        drawPixels(g, pixelsLine1(p0, p1), color);
-    }
-
     private List<Vec2d> pixelsTriangle(Vec2d p0, Vec2d p1, Vec2d p2) {
         List<Vec2d> pixels = new ArrayList<Vec2d>();
         // Если все на одной прямой, рисуем две прямые и не паримся
@@ -86,10 +81,6 @@ public class PixelDrawer {
         return pixels;
     }
 
-    public void drawFillTriangle(Graphics g, Vec2d p0, Vec2d p1, Vec2d p2, Color color) {
-        drawPixels(g, pixelsTriangle(p0, p1, p2), color);
-    }
-
     private List<Vec2d> pixelsConvexArea(List<Vec2d> dots) {
         // Как понятно из названия, только ВЫПУКЛЫЕ области. с невыпуклыми будет работать некорректно
         List<Vec2d> pixels = new ArrayList<Vec2d>();
@@ -102,10 +93,6 @@ public class PixelDrawer {
             }
         }
         return pixels;
-    }
-
-    public void drawConvexArea(Graphics g, List<Vec2d> dots, Color color) {
-        drawPixels(g, pixelsConvexArea(dots), color);
     }
 
     private List<Vec2d> pixelsFillHexagonal(Vec2d center, int radius) {
@@ -130,8 +117,40 @@ public class PixelDrawer {
         return pixelsConvexArea(dots);
     }
 
-    public void drawFillHexagonal(Graphics g, Vec2d center, int radius, Color color) {
-        drawPixels(g, pixelsFillHexagonal(center, radius), color);
+    private List<Vec2d> pixelsLine(Vec2d p0, Vec2d p1, int thickness) {
+        List<Vec2d> dots = new ArrayList<Vec2d>();
+        if (thickness < 0) {
+            return dots;
+        }
+
+        if (thickness == 1) {
+            dots.add(p0);
+            dots.add(p0);
+            dots.add(p1);
+            return dots;
+        }
+
+        Vec2d dp = p1.minus(p0);
+        Vec2d normal = dp.normal();
+        normal.normalization(); // Имеем 1ный вектор, перпендикулярный прямой
+        Vec2d dot = new Vec2d(p0);
+
+        // первая точка
+        dot.move(normal.multiple(thickness / 2.));
+        dots.add(dot.copy());
+        // вторая точка
+        dot.move(dp);
+        dots.add(dot.copy());
+        // Третья
+        normal.turnBack();
+        dot.move(normal.multiple(thickness));
+        dots.add(dot.copy());
+        // Четвертая
+        dp.turnBack();
+        dot.move(dp);
+        dots.add(dot.copy());
+
+        return pixelsConvexArea(dots);
     }
 
     private void drawPixels(Graphics g, List<Vec2d> pixels, Color color) {
@@ -147,5 +166,25 @@ public class PixelDrawer {
             g.drawLine(x, y, x, y);
             i += 0.01;
         }
+    }
+
+    public void drawLine1(Graphics g, Vec2d p0, Vec2d p1, Color color) {
+        drawPixels(g, pixelsLine1(p0, p1), color);
+    }
+
+    public void drawFillTriangle(Graphics g, Vec2d p0, Vec2d p1, Vec2d p2, Color color) {
+        drawPixels(g, pixelsTriangle(p0, p1, p2), color);
+    }
+
+    public void drawConvexArea(Graphics g, List<Vec2d> dots, Color color) {
+        drawPixels(g, pixelsConvexArea(dots), color);
+    }
+
+    public void drawFillHexagonal(Graphics g, Vec2d center, int radius, Color color) {
+        drawPixels(g, pixelsFillHexagonal(center, radius), color);
+    }
+
+    public void drawLine(Graphics g, Vec2d p0, Vec2d p1, int thickness, Color color) {
+        drawPixels(g, pixelsLine(p0, p1, thickness), color);
     }
 }
