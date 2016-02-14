@@ -9,6 +9,7 @@ import javax.swing.BorderFactory;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 public class GameLife {
 
@@ -33,8 +34,9 @@ public class GameLife {
 
 class MyPanel extends JPanel {
 
-    private int squareX = 50;
-    private int squareY = 50;
+    private Vec2dI p0 = new Vec2dI(300, 300);
+    private Vec2dI p1 = new Vec2dI(200, 250);
+    private Vec2dI p2 = new Vec2dI(420, 104);
     private int hexDiameter = 50;
     PixelDrawer drawer = new PixelDrawer();
 
@@ -43,39 +45,45 @@ class MyPanel extends JPanel {
 
         addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                moveSquare(e.getX(), e.getY());
+                changeCoord(e.getButton(), new Vec2dI(e.getX(), e.getY()));
             }
         });
 
         addMouseMotionListener(new MouseAdapter() {
             public void mouseDragged(MouseEvent e) {
-                moveSquare(e.getX(), e.getY());
+                int b1 = MouseEvent.BUTTON1_DOWN_MASK;
+                int b3 = MouseEvent.BUTTON3_DOWN_MASK;
+                int button = (e.getModifiersEx() & b1) == b1 ? 1 : (e.getModifiersEx() & b3) == b3 ? 3 : 0;
+                changeCoord(button, new Vec2dI(e.getX(), e.getY()));
             }
         });
 
     }
 
-    private void moveSquare(int x, int y) {
-        if ((squareX != x) || (squareY != y)) {
+    private void changeCoord(int button, Vec2dI p) {
+        if (button == 1) {
             repaint();
-            squareX = x;
-            squareY = y;
+            if (!p1.eq(p)) p1 = p;
+            repaint();
+        } else if (button == 3) {
+            repaint();
+            if (!p2.eq(p)) p2 = p;
             repaint();
         }
     }
 
     public Dimension getPreferredSize() {
-        return new Dimension(250, 200);
+        return new Dimension(600, 600);
     }
 
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
-        drawHexAround(g, squareX, squareY);
+        drawHexAround(g);
     }
 
-    protected void drawHexAround(Graphics g, int x, int y) {
+    protected void drawHexAround(Graphics g) {
         double sin60 = Math.sqrt(3)/2.;
         double[][] matrix = {
                 {hexDiameter , 0},
@@ -95,6 +103,8 @@ class MyPanel extends JPanel {
 //                    7
 //            );
 //        }
-        drawer.drawLine1(g, new Vec2dI(100, 100), new Vec2dI(x, y), Color.black);
+//        drawer.drawLine1(g, new Vec2dI(300, 300), new Vec2dI(x, y), Color.black);
+        drawer.fillTriangle(g, p0, p1, p2, Color.black);
     }
+
 }
