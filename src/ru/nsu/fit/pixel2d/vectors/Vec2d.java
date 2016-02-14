@@ -29,6 +29,11 @@ public class Vec2d {
         y = newY;
     }
 
+    public void set(Vec2d other) {
+        x = other.x;
+        y = other.y;
+    }
+
     public double[] getArr() {
         return new double[]{x, y};
     }
@@ -52,8 +57,9 @@ public class Vec2d {
         return new Vec2d((x * other), (y * other));
     }
 
-    public Vec2d move(Vec2d other) {
-        return new Vec2d(x + other.x, y + other.y);
+    public void move(Vec2d other) {
+        x += other.x;
+        y += other.y;
     }
 
     public void swap(Vec2d other) {
@@ -84,5 +90,9 @@ public class Vec2d {
 
     public Vec2d copy() {
         return new Vec2d(x, y);
+    }
+
+    public String toString() {
+        return "(" + Double.toString(x) + "; "  + Double.toString(y) + ")";
     }
 }

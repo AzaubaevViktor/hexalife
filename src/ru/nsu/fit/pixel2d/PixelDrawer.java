@@ -1,5 +1,6 @@
 package ru.nsu.fit.pixel2d;
 
+import com.sun.org.apache.bcel.internal.generic.NEW;
 import ru.nsu.fit.pixel2d.vectors.Vec2d;
 
 import java.awt.*;
@@ -121,7 +122,9 @@ public class PixelDrawer {
         };
 
         for (int i = 0; i < 6; i++) {
-            dots.add(center.move(hexMatrix[i]));
+            Vec2d dot = center.copy();
+            dot.move(hexMatrix[i]);
+            dots.add(dot);
         }
 
         return pixelsConvexArea(dots);
