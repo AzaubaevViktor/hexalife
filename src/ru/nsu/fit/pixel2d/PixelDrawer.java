@@ -11,13 +11,16 @@ import java.util.List;
 public class PixelDrawer {
 
     private double cos30 = Math.sqrt(3)/2.;
+    private double sin30 = 1/2.;
+    private double tg30 = 1 / Math.sqrt(3);
+
     private Vec2d[] hexCoefMatrix = {
-            new Vec2d(cos30, 1 / 2.),
-            new Vec2d(0, 1),
-            new Vec2d(-cos30, 1 / 2.),
-            new Vec2d(-cos30, - 1 / 2.),
-            new Vec2d(0, -1),
-            new Vec2d(cos30, -1 / 2.)
+            new Vec2d(1, tg30),
+            new Vec2d(0, 1 / cos30),
+            new Vec2d(-1, tg30),
+            new Vec2d(-1, - tg30),
+            new Vec2d(0, - 1 / cos30),
+            new Vec2d(1, - tg30),
     };
 
     private <T> T getItself(T itself, T dummy) {
@@ -149,12 +152,12 @@ public class PixelDrawer {
         return lines;
     }
 
-    private List<Vec2dI> dotsHexagonal(Vec2dI center, int radius) {
+    private List<Vec2dI> dotsHexagonal(Vec2dI center, int widthR) {
         List<Vec2dI> dots = new ArrayList<Vec2dI>();
 
         for (int i = 0; i < 6; i++) {
             Vec2d dot = new Vec2d(center);
-            dot.move(hexCoefMatrix[i].multiple(radius));
+            dot.move(hexCoefMatrix[i].multiple(widthR));
             dots.add(new Vec2dI(dot));
         }
 
@@ -165,8 +168,8 @@ public class PixelDrawer {
         return linesConvexArea(dotsHexagonal(center, radius));
     }
 
-    private List<BasicLine> linesHexadecimal(Vec2dI center, int radius, int thickness) {
-        return linesAngledLine(dotsHexagonal(center, radius), thickness, true);
+    private List<BasicLine> linesHexadecimal(Vec2dI center, int widthR, int thickness) {
+        return linesAngledLine(dotsHexagonal(center, widthR), thickness, true);
     }
 
     private List<BasicLine> linesThickLine(Vec2dI p0, Vec2dI p1, int thickness) {
@@ -249,10 +252,10 @@ public class PixelDrawer {
         drawBasicLines(g, linesThickLine(p0, p1, thickness), color);
     }
 
-    public void drawHexagonal(Graphics g, Vec2dI center, int raduis, int thickness, Color color) {
+    public void drawHexagonal(Graphics g, Vec2dI center, int widthR, int thickness, Color color) {
         drawBasicLines(
                 g,
-                linesHexadecimal(center, raduis, thickness),
+                linesHexadecimal(center, widthR, thickness),
                 color
                 );
     }
