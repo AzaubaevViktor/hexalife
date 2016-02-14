@@ -83,7 +83,7 @@ class MyPanel extends JPanel {
     }
 
     protected void drawHexAround(Graphics g) {
-        drawer.drawFillTriangle(g, p0, p1, p2, Color.black);
+//        drawer.drawFillTriangle(g, p0, p1, p2, Color.black);
         drawer.drawFillHexagonal(g, new Vec2d(500, 500), 200, Color.black);
         // тест на отсутствие полосочки
         drawer.drawFillTriangle(g, new Vec2d(100, 100), new Vec2d(150, 50), new Vec2d(200, 100), Color.black);

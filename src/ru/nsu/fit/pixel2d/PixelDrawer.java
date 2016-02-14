@@ -163,16 +163,11 @@ public class PixelDrawer {
 
     private void drawPixels(Graphics g, List<Vec2d> pixels, Color color) {
         g.setColor(color);
-        float i = 0;
         for (Vec2d pixel: pixels) {
             int x = (int) Math.round(pixel.getX());
             int y = (int) Math.round(pixel.getY());
-            g.setColor(new Color(
-                    (float) Math.abs(Math.cos(x / 100.)),
-                    (float) Math.abs(Math.sin(y / 100.)),
-                    Math.min(i - (int) i, 1 + (int)i - i) ));
+            g.setColor(color);
             g.drawLine(x, y, x, y);
-            i += 0.1;
         }
     }
 
