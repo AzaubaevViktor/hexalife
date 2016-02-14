@@ -12,7 +12,10 @@ public class PixelDrawer {
         return itself;
     }
 
-    private List<Vec2d> pixelsLine1(Vec2d p0, Vec2d p1) {
+    private List<Vec2d> pixelsLine1(Vec2d _p0, Vec2d _p1) {
+        Vec2d p0 = _p0.copy();
+        Vec2d p1 = _p1.copy();
+
         Vec2d dp = p1.minus(p0);
         boolean steep = Math.abs(dp.getY()) > Math.abs(dp.getX());
 
@@ -63,6 +66,11 @@ public class PixelDrawer {
         if (p0.dy(p1) > 0) p0 = getItself(p1, p1 = p0);
         if (p0.dy(p2) > 0) p0 = getItself(p2, p2 = p0);
         if (p1.dy(p2) > 0) p1 = getItself(p2, p2 = p1);
+
+        // Прорисовываем границы
+        pixels.addAll(pixelsLine1(p0, p1));
+//        pixels.addAll(pixelsLine1(p1, p2));
+//        pixels.addAll(pixelsLine1(p2, p0));
 
         double totalHeight = p2.dy(p0);
 
@@ -164,7 +172,7 @@ public class PixelDrawer {
                     (float) Math.abs(Math.sin(y / 100.)),
                     Math.min(i - (int) i, 1 + (int)i - i) ));
             g.drawLine(x, y, x, y);
-            i += 0.01;
+            i += 0.1;
         }
     }
 
