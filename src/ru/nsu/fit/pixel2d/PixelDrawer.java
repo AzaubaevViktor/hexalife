@@ -1,5 +1,6 @@
 package ru.nsu.fit.pixel2d;
 
+import ru.nsu.fit.pixel2d.vectors.BasicLine;
 import ru.nsu.fit.pixel2d.vectors.Vec2d;
 import ru.nsu.fit.pixel2d.vectors.Vec2dI;
 
@@ -35,12 +36,12 @@ public class PixelDrawer {
 
         int yStep = (dp.getY() > 0) ? 1 : -1;
 
-        List<Vec2dI> pixels = new ArrayList<Vec2dI>();
-
         int dx = dp.getX();
         int dy = dp.getY();
 
         int y = p0.getY();
+        ArrayList<Vec2dI> pixels = new ArrayList<Vec2dI>();
+
         for (int x = p0.getX(); x <= p1.getX(); x++) {
             int _x = steep ? y : x;
             int _y = steep ? x : y;
@@ -52,19 +53,25 @@ public class PixelDrawer {
                 error += dx;
             }
         }
+
         return pixels;
     }
 
-    private List<Vec2dI> pixelsTriangle(Vec2dI p0, Vec2dI p1, Vec2dI p2) {
+    private List<BasicLine> linesTriangle(Vec2dI p0, Vec2dI p1, Vec2dI p2) {
         List<Vec2dI> pixels = new ArrayList<Vec2dI>();
-        // Прорисовываем границы
+        List<BasicLine> lines = new ArrayList<BasicLine>();
+        // Смотрим пиксели границ
+
+        if (p1.dy(p0) == 0 && p2.dy(p1) == 0) {
+            lines.add(new BasicLine(p0, p1));
+            lines.add(new BasicLine(p1, p2));
+            lines.add(new BasicLine(p0, p2));
+            return lines;
+        }
+
         pixels.addAll(pixelsLine1(p0, p1));
         pixels.addAll(pixelsLine1(p1, p2));
         pixels.addAll(pixelsLine1(p2, p0));
-        // Если все на одной прямой, не паримся -- всё, что надо уже прорисовано
-        if (p1.dy(p0) == 0 && p2.dy(p1) == 0) {
-            return pixels;
-        }
 
         Map<Integer, Integer> minXs = new HashMap<Integer, Integer>();
         Map<Integer, Integer> maxXs = new HashMap<Integer, Integer>();
@@ -88,29 +95,34 @@ public class PixelDrawer {
         for (Integer y: minXs.keySet()) {
             int minX = minXs.get(y);
             int maxX = maxXs.get(y);
-            for (int x = minX + 1; x < maxX; x++) {
-                pixels.add(new Vec2dI(x, y));
-            }
+            lines.add(new BasicLine(minX, y, maxX, y));
         }
 
-        return pixels;
+        return lines;
     }
 
-    private List<Vec2dI> pixelsConvexArea(List<Vec2dI> dots) {
+    private List<BasicLine> linesConvexArea(List<Vec2dI> dots) {
         // Как понятно из названия, только ВЫПУКЛЫЕ области. с невыпуклыми будет работать некорректно
-        List<Vec2dI> pixels = new ArrayList<Vec2dI>();
-        if (dots.size() == 1) pixels.addAll(dots);
-        else if (dots.size() == 2) pixels.addAll(pixelsLine1(dots.get(0), dots.get(1)));
+        List<BasicLine> lines = new ArrayList<BasicLine>();
+
+        // Точка
+        if (dots.size() == 1) {
+            lines.add(new BasicLine(dots.get(0)));
+        }
+        // Линия
+        else if (dots.size() == 2) lines.add(new BasicLine(dots.get(0), dots.get(1)));
+        // Один и больше тругольников
         else if (dots.size() >= 3) {
             Vec2dI p0 = dots.get(0);
             for (int i = 1; i < dots.size() - 1; i++) {
-                pixels.addAll(pixelsTriangle(p0, dots.get(i), dots.get(i + 1)));
+                lines.addAll(linesTriangle(p0, dots.get(i), dots.get(i + 1)));
             }
         }
-        return pixels;
+
+        return lines;
     }
 
-    private List<Vec2dI> pixelsFillHexagonal(Vec2dI center, int radius) {
+    private List<BasicLine> linesFillHexagonal(Vec2dI center, int radius) {
         List<Vec2dI> dots = new ArrayList<Vec2dI>();
 
         double sin60 = Math.sqrt(3)/2.;
@@ -129,72 +141,79 @@ public class PixelDrawer {
             dots.add(new Vec2dI(dot));
         }
 
-        return pixelsConvexArea(dots);
+        return linesConvexArea(dots);
     }
 
-    private List<Vec2dI> pixelsLine(Vec2dI p0, Vec2dI p1, int thickness) {
+    private List<BasicLine> pixelsLine(Vec2dI p0, Vec2dI p1, int thickness) {
         List<Vec2dI> dots = new ArrayList<Vec2dI>();
-        if (thickness < 0) {
-            return dots;
-        }
 
         if (thickness == 1) {
             dots.add(p0);
-            dots.add(p0);
             dots.add(p1);
-            return dots;
+        } else {
+
+            Vec2dI dp = p1.minus(p0);
+            Vec2d normal = new Vec2d(dp).normal();
+            normal.normalization(); // Имеем 1ный вектор, перпендикулярный прямой
+            Vec2d dot = new Vec2d(p0);
+
+            // первая точка
+            dot.move(normal.multiple(thickness / 2.));
+            dots.add(new Vec2dI(dot));
+            // вторая точка
+            dot.move(dp);
+            dots.add(new Vec2dI(dot));
+            // Третья
+            normal.turnBack();
+            dot.move(normal.multiple(thickness));
+            dots.add(new Vec2dI(dot));
+            // Четвертая
+            dp.turnBack();
+            dot.move(dp);
+            dots.add(new Vec2dI(dot));
         }
-
-        Vec2dI dp = p1.minus(p0);
-        Vec2d normal = new Vec2d(dp).normal();
-        normal.normalization(); // Имеем 1ный вектор, перпендикулярный прямой
-        Vec2d dot = new Vec2d(p0);
-
-        // первая точка
-        dot.move(normal.multiple(thickness / 2.));
-        dots.add(new Vec2dI(dot));
-        // вторая точка
-        dot.move(dp);
-        dots.add(new Vec2dI(dot));
-        // Третья
-        normal.turnBack();
-        dot.move(normal.multiple(thickness));
-        dots.add(new Vec2dI(dot));
-        // Четвертая
-        dp.turnBack();
-        dot.move(dp);
-        dots.add(new Vec2dI(dot));
-
-        return pixelsConvexArea(dots);
+        return linesConvexArea(dots);
     }
 
-    private void drawPixels(Graphics g, List<Vec2dI> pixels, Color color) {
+    private void drawBasicLines(Graphics g, List<BasicLine> lines, Color color) {
         g.setColor(color);
-        for (Vec2dI pixel: pixels) {
-            int x = pixel.getX();
-            int y = pixel.getY();
-            g.setColor(color);
-            g.drawLine(x, y, x, y);
+        for (BasicLine line: lines) {
+            if (line.isHorisontal()) {
+                int x0 = line.getX0();
+                int x1 = line.getX1();
+                int y = line.getY0();
+                for (int x = x0; x <= x1; x++) {
+                    g.drawLine(x, y, x, y);
+                }
+            } else {
+                for (Vec2dI pixel: pixelsLine1(line.getStart(), line.getEnd())) {
+                    int x = pixel.getX();
+                    int y = pixel.getY();
+                    g.drawLine(x, y, x, y);
+                }
+            }
         }
     }
 
     public void drawLine1(Graphics g, Vec2dI p0, Vec2dI p1, Color color) {
-        drawPixels(g, pixelsLine1(p0, p1), color);
+        ArrayList<BasicLine> lines = new ArrayList<BasicLine>();
+        lines.add(new BasicLine(p0, p1));
+        drawBasicLines(g, lines, color);
     }
 
     public void drawFillTriangle(Graphics g, Vec2dI p0, Vec2dI p1, Vec2dI p2, Color color) {
-        drawPixels(g, pixelsTriangle(p0, p1, p2), color);
+        drawBasicLines(g, linesTriangle(p0, p1, p2), color);
     }
 
     public void drawConvexArea(Graphics g, List<Vec2dI> dots, Color color) {
-        drawPixels(g, pixelsConvexArea(dots), color);
+        drawBasicLines(g, linesConvexArea(dots), color);
     }
 
     public void drawFillHexagonal(Graphics g, Vec2dI center, int radius, Color color) {
-        drawPixels(g, pixelsFillHexagonal(center, radius), color);
+        drawBasicLines(g, linesFillHexagonal(center, radius), color);
     }
 
     public void drawLine(Graphics g, Vec2dI p0, Vec2dI p1, int thickness, Color color) {
-        drawPixels(g, pixelsLine(p0, p1, thickness), color);
+        drawBasicLines(g, pixelsLine(p0, p1, thickness), color);
     }
 }
