@@ -1,5 +1,6 @@
 package ru.nsu.fit;
 import ru.nsu.fit.pixel2d.PixelDrawer;
+import ru.nsu.fit.pixel2d.vectors.Vec2d;
 import ru.nsu.fit.pixel2d.vectors.Vec2dI;
 
 import javax.swing.SwingUtilities;
@@ -78,27 +79,49 @@ class HexagonalPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         drawHexagonalField(g);
+        drawCells(g);
+        g.setColor(Color.red);
+        g.drawString(Integer.toString(hexaWidthR) + " " + Integer.toString(lineThickness), 1, 10);
     }
 
-    protected void drawHexagonalField(Graphics g) {
+    private Vec2dI getPixelbyPlace(int x, int y) {
         double cos30 = Math.sqrt(3)/2.;
-        int xStep = lineThickness + hexaWidthR * 2;
-        double yStep = (2 * hexaWidthR + lineThickness) * cos30;
-        double oddDx = (hexaWidthR * 2 + lineThickness) / 2.;
+        int xStep = lineThickness + hexaWidthR * 2 - 1; // Подогнал -1
+        double yStep = (int) (2 * hexaWidthR + lineThickness) * cos30; // Подогнал (int)
+        double oddDx = (int) (hexaWidthR * 2 + lineThickness) / 2. - 1; // Подогнал (int) и -1
         int padding = lineThickness;
-        for (int y = 0; y < width; y++) {
-            boolean oddLine = y % 2 != 0;
-            for (int x = 0; x < (width - (oddLine ? 1 : 0)); x++) {
-                int hexaX = (int) (Math.round(
+        boolean oddLine = y % 2 != 0;
+        return new Vec2dI(
+                (int) (Math.round(
                         padding + xStep * x +
                                 (lineThickness + hexaWidthR * cos30) +
                                 (oddLine ? oddDx : 0)
-                ));
-                int hexaY = (int) (Math.round(
+                )),
+                (int) (Math.round(
                         padding + yStep * y +
-                        (lineThickness / cos30 + hexaWidthR)
-                ));
-                drawer.drawHexagonal(g, new Vec2dI(hexaX, hexaY), hexaWidthR + lineThickness / 2, lineThickness, Color.black);
+                                (lineThickness / cos30 + hexaWidthR)
+                ))
+        );
+    }
+
+    protected void drawHexagonalField(Graphics g) {
+        for (int y = 0; y < height; y++) {
+            boolean oddLine = y % 2 != 0;
+            for (int x = 0; x < (width - (oddLine ? 1 : 0)); x++) {
+
+                drawer.drawHexagonal(g, getPixelbyPlace(x, y), hexaWidthR + lineThickness / 2, lineThickness, Color.black);
+            }
+        }
+    }
+
+    protected void drawCells(Graphics g) {
+        for (int y = 0; y < height; y++) {
+            boolean oddLine = y % 2 != 0;
+            for (int x = 0; x < (width - (oddLine ? 1 : 0)); x++) {
+                if (Math.random() > 0.8) {
+
+                    drawer.drawFillHexagonal(g, getPixelbyPlace(x, y), hexaWidthR - 1, Color.green);
+                }
             }
         }
     }
