@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GameLife {
@@ -30,7 +31,7 @@ public class GameLife {
             List<Vec2dI> cells = model.getStates();
             System.out.println("step");
             model.step();
-            panel.setCells(cells);
+//            panel.setCells(cells);
             panel.repaint();
             try {
                 Thread.sleep(2000);
@@ -60,14 +61,17 @@ class HexagonalPanel extends JPanel {
     private int height;
     private int width;
     private int hexaWidthR = 20;
-    private int lineThickness = 1;
+    private int lineThickness = 10;
     private PixelDrawer drawer = new PixelDrawer();
+    private HexagonalChecker hexCheck = new HexagonalChecker(drawer);
 
-    private List<Vec2dI> cells;
+    private List<Vec2dI> cells = new ArrayList<Vec2dI>();
 
     public HexagonalPanel(int width, int height) {
         this.width = width;
+        hexCheck.width = width;
         this.height = height;
+        hexCheck.width = width;
         repaint();
         addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
@@ -87,10 +91,16 @@ class HexagonalPanel extends JPanel {
 
     private void mouseHandler(int button, Vec2dI p) {
         if (button == 1) {
-            hexaWidthR = p.getX() / 10;
-            lineThickness = p.getY() / 10;
-            if (lineThickness < 1) {
-                lineThickness = 1;
+//            hexaWidthR = p.getX() / 10;
+//            lineThickness = p.getY() / 10;
+//            if (lineThickness < 1) {
+//                lineThickness = 1;
+//            }
+            cells.clear();
+            Vec2dI coord = hexCheck.getPlaceByClick(p);
+            if (coord != null) {
+                System.out.println(coord);
+                setCell(coord);
             }
         }
     }
@@ -108,10 +118,46 @@ class HexagonalPanel extends JPanel {
         repaint();
     }
 
-    private Vec2d getCenterByPlace(int x, int y) {
+    protected void drawHexagonalField(Graphics g) {
+        for (int y = 0; y < height; y++) {
+            boolean oddLine = y % 2 != 0;
+
+            int i = 0;
+            for (int x = 0; x < (width - (oddLine ? 1 : 0)); x++) {
+                drawer.drawHexagonal(g, hexCheck.getCenterByPlace(x, y), hexaWidthR + (lineThickness - 1) / 2., lineThickness, Color.black);
+                i++;
+            }
+        }
+    }
+
+    protected void drawCells(Graphics g, List<Vec2dI> cells) {
+        if (cells == null) return;
+        for (Vec2dI cell: cells) {
+
+            drawer.drawFillHexagonal(g, hexCheck.getCenterByPlace(cell.getX(), cell.getY()), hexaWidthR - 1, Color.green);
+
+        }
+    }
+
+    public void setCell(Vec2dI cell) {
+        this.cells.add(cell);
+    }
+}
+
+class HexagonalChecker {
+    private PixelDrawer drawer;
+    public int height;
+    public int width;
+    public int hexaWidthR = 20;
+    public int lineThickness = 10;
+
+    public HexagonalChecker(PixelDrawer drawer) {
+        this.drawer = drawer;
+    }
+
+    public Vec2d getCenterByPlace(int x, int y) {
         // Возвращает координаты по расположению ячейки
         double cos30 = Math.sqrt(3)/2.;
-//        lineThickness = 0;
         int lTh = lineThickness - 1; // Ибо координаты
         int xStep = lTh + hexaWidthR * 2;
         double yStep = ((2 * hexaWidthR + lTh) * cos30);
@@ -128,38 +174,71 @@ class HexagonalPanel extends JPanel {
         );
     }
 
-    protected void drawHexagonalField(Graphics g) {
-        for (int y = 0; y < height; y++) {
-            boolean oddLine = y % 2 != 0;
+    public boolean checkClickTriangle(Vec2dI p1, Vec2dI p2, Vec2dI p3, Vec2dI click) {
+        int a = (p1.getX() - click.getX()) * (p2.getY() - p1.getY()) - (p2.getX() - p1.getX()) * (p1.getY() - click.getY());
+        int b = (p2.getX() - click.getX()) * (p3.getY() - p2.getY()) - (p3.getX() - p2.getX()) * (p2.getY() - click.getY());
+        int c = (p3.getX() - click.getX()) * (p1.getY() - p3.getY()) - (p1.getX() - p3.getX()) * (p3.getY() - click.getY());
+        return (a >= 0 && b >= 0 && c >= 0) || (a <= 0 && b <= 0 && c <= 0);
+    }
 
-            int i = 0;
-            for (int x = 0; x < (width - (oddLine ? 1 : 0)); x++) {
-                Color color = Color.blue;
-                switch (i % 3) {
-                    case 0: color = Color.red;
-                        break;
-                    case 1: color = Color.green;
-                        break;
-                    case 2: color = Color.blue;
-                        break;
-                }
-
-                drawer.drawHexagonal(g, getCenterByPlace(x, y), hexaWidthR + (lineThickness - 1) / 2., lineThickness, color);
-                i++;
+    public boolean checkClickHexa(Vec2d center, Vec2dI click) {
+        List<Vec2dI> dots = drawer.dotsHexagonal(center, hexaWidthR);
+        Vec2dI p0 = dots.remove(0);
+        for (int i = 0; i < dots.size() - 1; i++) {
+            if (checkClickTriangle(p0, dots.get(i), dots.get(i + 1), click)) {
+                return true;
             }
         }
+        return false;
     }
 
-    protected void drawCells(Graphics g, List<Vec2dI> cells) {
-        if (cells == null) return;
-        for (Vec2dI cell: cells) {
+    public boolean checkClick(int x, int y, Vec2dI click) {
+        Vec2d center = getCenterByPlace(x, y);
+        return checkClickHexa(center, click);
+    }
 
-            drawer.drawFillHexagonal(g, getCenterByPlace(cell.getX(), cell.getY()), hexaWidthR - 1, Color.green);
+    public int getPlaceXByClick(int y, Vec2dI click) {
+        double cos30 = Math.sqrt(3)/2.;
+        int lTh = lineThickness - 1; // Ибо координаты
+        int xStep = lTh + hexaWidthR * 2;
+        double yStep = ((2 * hexaWidthR + lTh) * cos30);
+        double oddDx = ((hexaWidthR * 2 + lTh) / 2.);
+        int padding = lineThickness;
+        boolean oddLine = y % 2 != 0;
 
+        double x = (click.getX() - (lineThickness /2. + hexaWidthR) - padding - (oddLine ? oddDx : 0)) / xStep;
+        x += 1/2.; // Выравнивающий коэффициент, чтобы сдвинуть целые значения к началу интервала
+        if (checkClick((int) x, y, click)) {
+            return (int) x;
+        } else if (((x - (int) x) >= .5) && (checkClick((int) x + 1, y, click)))  {
+            return (int) x + 1;
         }
+        return -1;
     }
 
-    public void setCells(List<Vec2dI> cells) {
-        this.cells = cells;
+    public Vec2dI getPlaceByClick(Vec2dI click) {
+        // Возвращает номер ячейки по координатам
+        double cos30 = Math.sqrt(3)/2.;
+        int lTh = lineThickness - 1; // Ибо координаты
+        double yStep = ((2 * hexaWidthR + lTh) * cos30);
+        int padding = lineThickness;
+
+        double y = (click.getY() - (lineThickness /2. + hexaWidthR / cos30) - padding +
+                hexaWidthR / cos30 // выравнивающий коэффициент, чтобы сдвинуть целые значения к началу интервала
+        ) / yStep;
+
+        int x = -1;
+
+        x = getPlaceXByClick((int) y, click);
+        if (x == -1) {
+            x = getPlaceXByClick((int) y + 1, click);
+            if (x != -1) {
+                return new Vec2dI((int) x, (int) y + 1);
+            }
+        } else {
+            return new Vec2dI((int) x, (int) y);
+        }
+
+        return null;
     }
 }

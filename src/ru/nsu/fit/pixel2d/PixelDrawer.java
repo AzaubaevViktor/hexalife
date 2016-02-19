@@ -152,7 +152,7 @@ public class PixelDrawer {
         return lines;
     }
 
-    private List<Vec2dI> dotsHexagonal(Vec2d center, double widthR) {
+    public List<Vec2dI> dotsHexagonal(Vec2d center, double widthR) {
         List<Vec2dI> dots = new ArrayList<Vec2dI>();
 
         for (int i = 0; i < 6; i++) {
