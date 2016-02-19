@@ -5,6 +5,7 @@ import ru.nsu.fit.pixel2d.vectors.Vec2d;
 import ru.nsu.fit.pixel2d.vectors.Vec2dI;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
 
@@ -203,58 +204,71 @@ public class PixelDrawer {
         return linesConvexArea(dots);
     }
 
-    private void drawBasicLines(Graphics g, List<BasicLine> lines, Color color) {
-        g.setColor(color);
+    private List<BasicLine> linesRectangle(Vec2dI leftUp, Vec2dI rightDown) {
+        List<BasicLine> lines = new ArrayList<BasicLine>();
+        for (int x = leftUp.getX(); x < rightDown.getX(); x++) {
+            lines.add(new BasicLine(x, leftUp.getY(), x, rightDown.getY(), 1));
+        }
+        return lines;
+    }
+
+    private void drawBasicLines(BufferedImage img, List<BasicLine> lines, Color color) {
 
         for (BasicLine line: lines) {
-            // Если линия толстая -- рисует её тонкими линиями
-            if (line.getThickness() > 1) {
-                drawBasicLines(g, linesThickLine(line.getStart(), line.getEnd(), line.getThickness()), color);
-            }
-            // Если линия горизонтальная -- рисует прям тут
-            else if (line.isHorizontal()) {
-                int x0 = line.getX0();
-                int x1 = line.getX1();
-                int y = line.getY0();
-                for (int x = x0; x <= x1; x++) {
-                    g.drawLine(x, y, x, y);
+            try {
+                // Если линия толстая -- рисует её тонкими линиями
+                if (line.getThickness() > 1) {
+                    drawBasicLines(img, linesThickLine(line.getStart(), line.getEnd(), line.getThickness()), color);
                 }
-            } else {
-                // Если не горизонтальная -- берёт пиксели и рисует пиксели
-                for (Vec2dI pixel: pixelsLine1(line.getStart(), line.getEnd())) {
-                    int x = pixel.getX();
-                    int y = pixel.getY();
-                    g.drawLine(x, y, x, y);
+                // Если линия горизонтальная -- рисует прям тут
+                else if (line.isHorizontal()) {
+                    int x0 = line.getX0();
+                    int x1 = line.getX1();
+                    int y = line.getY0();
+                    for (int x = x0; x <= x1; x++) {
+                        img.setRGB(x, y, color.getRGB());
+                    }
+                } else {
+                    // Если не горизонтальная -- берёт пиксели и рисует пиксели
+                    for (Vec2dI pixel : pixelsLine1(line.getStart(), line.getEnd())) {
+                        int x = pixel.getX();
+                        int y = pixel.getY();
+                        img.setRGB(x, y, color.getRGB());
+                    }
                 }
-            }
+            } catch (ArrayIndexOutOfBoundsException ignored) {}
         }
     }
 
-    public void drawLine1(Graphics g, Vec2dI p0, Vec2dI p1, Color color) {
+    public void clearAll(BufferedImage img, Vec2dI rightDown, Color color) {
+        drawBasicLines(img, linesRectangle(new Vec2dI(0, 0), rightDown), color);
+    }
+
+    public void drawLine1(BufferedImage img, Vec2dI p0, Vec2dI p1, Color color) {
         ArrayList<BasicLine> lines = new ArrayList<BasicLine>();
         lines.add(new BasicLine(p0, p1, 1));
-        drawBasicLines(g, lines, color);
+        drawBasicLines(img, lines, color);
     }
 
-    public void drawFillTriangle(Graphics g, Vec2dI p0, Vec2dI p1, Vec2dI p2, Color color) {
-        drawBasicLines(g, linesTriangle(p0, p1, p2), color);
+    public void drawFillTriangle(BufferedImage img, Vec2dI p0, Vec2dI p1, Vec2dI p2, Color color) {
+        drawBasicLines(img, linesTriangle(p0, p1, p2), color);
     }
 
-    public void drawConvexArea(Graphics g, List<Vec2dI> dots, Color color) {
-        drawBasicLines(g, linesConvexArea(dots), color);
+    public void drawConvexArea(BufferedImage img, List<Vec2dI> dots, Color color) {
+        drawBasicLines(img, linesConvexArea(dots), color);
     }
 
-    public void drawFillHexagonal(Graphics g, Vec2d center, int radius, Color color) {
-        drawBasicLines(g, linesFillHexagonal(center, radius), color);
+    public void drawFillHexagonal(BufferedImage img, Vec2d center, int radius, Color color) {
+        drawBasicLines(img, linesFillHexagonal(center, radius), color);
     }
 
-    public void drawLine(Graphics g, Vec2dI p0, Vec2dI p1, int thickness, Color color) {
-        drawBasicLines(g, linesThickLine(p0, p1, thickness), color);
+    public void drawLine(BufferedImage img, Vec2dI p0, Vec2dI p1, int thickness, Color color) {
+        drawBasicLines(img, linesThickLine(p0, p1, thickness), color);
     }
 
-    public void drawHexagonal(Graphics g, Vec2d center, double widthR, double thickness, Color color) {
+    public void drawHexagonal(BufferedImage img, Vec2d center, double widthR, double thickness, Color color) {
         drawBasicLines(
-                g,
+                img,
                 linesHexadecimal(center, widthR, thickness),
                 color
                 );

@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,9 +62,10 @@ class HexagonalPanel extends JPanel {
     private int height;
     private int width;
     private int hexaWidthR = 20;
-    private int lineThickness = 10;
+    private int lineThickness = 1;
     private PixelDrawer drawer = new PixelDrawer();
     private HexagonalChecker hexCheck = new HexagonalChecker(drawer);
+    BufferedImage imgResult;
 
     private List<Vec2dI> cells = new ArrayList<Vec2dI>();
 
@@ -72,6 +74,10 @@ class HexagonalPanel extends JPanel {
         hexCheck.width = width;
         this.height = height;
         hexCheck.width = width;
+        Vec2dI leftDownHex = new Vec2dI(hexCheck.getCenterByPlace(width, height));
+        imgResult = new BufferedImage(leftDownHex.getX(), leftDownHex.getY(), BufferedImage.TYPE_INT_RGB);
+        drawer.clearAll(imgResult, new Vec2dI(imgResult.getWidth(), imgResult.getHeight()), Color.white);
+
         repaint();
         addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
@@ -111,30 +117,34 @@ class HexagonalPanel extends JPanel {
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        drawHexagonalField(g);
-        drawCells(g, cells);
+        Dimension dm = getSize();
+
+        g.drawImage(imgResult, 0, 0, imgResult.getWidth(), imgResult.getHeight(), this);
+
+        drawHexagonalField();
+        drawCells(cells);
         g.setColor(Color.red);
         g.drawString(Integer.toString(hexaWidthR) + " " + Integer.toString(lineThickness), 1, 10);
         repaint();
     }
 
-    protected void drawHexagonalField(Graphics g) {
+    protected void drawHexagonalField() {
         for (int y = 0; y < height; y++) {
             boolean oddLine = y % 2 != 0;
 
             int i = 0;
             for (int x = 0; x < (width - (oddLine ? 1 : 0)); x++) {
-                drawer.drawHexagonal(g, hexCheck.getCenterByPlace(x, y), hexaWidthR + (lineThickness - 1) / 2., lineThickness, Color.black);
+                drawer.drawHexagonal(imgResult, hexCheck.getCenterByPlace(x, y), hexaWidthR + (lineThickness - 1) / 2., lineThickness, Color.black);
                 i++;
             }
         }
     }
 
-    protected void drawCells(Graphics g, List<Vec2dI> cells) {
+    protected void drawCells(List<Vec2dI> cells) {
         if (cells == null) return;
         for (Vec2dI cell: cells) {
 
-            drawer.drawFillHexagonal(g, hexCheck.getCenterByPlace(cell.getX(), cell.getY()), hexaWidthR - 1, Color.green);
+            drawer.drawFillHexagonal(imgResult, hexCheck.getCenterByPlace(cell.getX(), cell.getY()), hexaWidthR - 1, Color.green);
 
         }
     }
@@ -149,7 +159,7 @@ class HexagonalChecker {
     public int height;
     public int width;
     public int hexaWidthR = 20;
-    public int lineThickness = 10;
+    public int lineThickness = 1;
 
     public HexagonalChecker(PixelDrawer drawer) {
         this.drawer = drawer;
