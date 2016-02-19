@@ -44,8 +44,8 @@ public class Vec2dI {
     }
 
     public void set(Vec2d other) {
-        x = (int) Math.round(other.getX());
-        y = (int) Math.round(other.getY());
+        x = (int) other.getX();
+        y = (int) other.getY();
     }
 
     public void reflect() {

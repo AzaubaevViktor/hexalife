@@ -61,8 +61,8 @@ class TestPanel extends JPanel {
 
     protected void drawHexAround(Graphics g) {
 //        drawer.drawFillTriangle(g, p0, p1, p2, Color.black);
-        drawer.drawFillHexagonal(g, new Vec2dI(500, 500), 200, Color.green);
-        drawer.drawHexagonal(g, new Vec2dI(500, 500), (int) new Vec2d(p2).length(),(int) new Vec2d(p1).length(),  Color.black);
+        drawer.drawFillHexagonal(g, new Vec2d(500, 500), 200, Color.green);
+        drawer.drawHexagonal(g, new Vec2d(500, 500), (int) new Vec2d(p2).length(),(int) new Vec2d(p1).length(),  Color.black);
         // тест на отсутствие полосочки
         drawer.drawFillTriangle(g, new Vec2dI(100, 100), new Vec2dI(150, 50), new Vec2dI(200, 100), Color.black);
         drawer.drawFillTriangle(g, new Vec2dI(100, 100), new Vec2dI(150, 150), new Vec2dI(200, 100), Color.black);

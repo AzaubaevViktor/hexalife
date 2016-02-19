@@ -1,5 +1,10 @@
 package ru.nsu.fit;
 
+import ru.nsu.fit.pixel2d.vectors.Vec2dI;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Model {
     public double [][] impact; // y x
     public boolean [][] states; // y x
@@ -12,19 +17,37 @@ public class Model {
     public Model(int width, int height) {
         this.width = width;
         this.height = height;
+        impact = new double[height][width];
+        states = new boolean[height][width];
     }
 
-    private void clearImpact() {
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                impact[y][x] = 0.;
+    public void randomGenerate() {
+        for (int y = 0; y < height; y++) {
+            int width_line = width + ((y % 2 == 0) ? 0 : -1);
+            for (int x = 0; x < width_line; x++) {
+                if (Math.random() > 0.8) {
+                    states[y][x] = true;
+                }
             }
         }
     }
 
+    public List<Vec2dI> getStates() {
+        List<Vec2dI> cells = new ArrayList<Vec2dI>();
+        for (int y = 0; y < height; y++) {
+            int width_line = width + ((y % 2 == 0) ? 0 : -1);
+            for (int x = 0; x < width_line; x++) {
+                if (states[y][x]) {
+                    cells.add(new Vec2dI(x, y));
+                }
+            }
+        }
+        return cells;
+    }
+
     public void set(int y, int x, boolean isAlive) {
         int width_line = width + ((y % 2 == 0) ? 0 : -1);
-        if (((0 <= x) && (x <= width_line)) && ((0 <= y) && (y >= height))) {
+        if (((0 <= x) && (x < width_line)) && ((0 <= y) && (y < height))) {
             states[y][x] = isAlive;
         }
     }
@@ -32,7 +55,7 @@ public class Model {
     private boolean get(int y, int x) {
         // Про нечётные строки
         int width_line = width + ((y % 2 == 0) ? 0 : -1);
-        return ((0 <= x) && (x <= width_line)) && ((0 <= y) && (y >= height)) && states[y][x];
+        return ((0 <= x) && (x < width_line)) && ((0 <= y) && (y < height)) && states[y][x];
     }
 
     private void calcImpact() {

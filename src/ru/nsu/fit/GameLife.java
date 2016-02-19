@@ -9,23 +9,45 @@ import javax.swing.JPanel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 public class GameLife {
+
+    private static HexagonalPanel panel;
+    private static Model model;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                createAndShowGUI();
+                model = new Model(10, 20);
+                createAndShowGUI(10, 20);
+                model.randomGenerate();
             }
         });
+        int i = 1;
+        while (i < 10) {
+            i++;
+            List<Vec2dI> cells = model.getStates();
+            System.out.println("step");
+            model.step();
+            panel.setCells(cells);
+            panel.repaint();
+            try {
+                Thread.sleep(2000);
+                // any action
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    private static void createAndShowGUI() {
+    private static void createAndShowGUI(int width, int height) {
         System.out.println("Created GUI on EDT? "+
                 SwingUtilities.isEventDispatchThread());
         JFrame f = new JFrame("Swing Paint Demo");
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.add(new HexagonalPanel(10, 20));
+        panel = new HexagonalPanel(width, height);
+        f.add(panel);
 //        f.add(new TestPanel());
         f.pack();
         f.setVisible(true);
@@ -40,6 +62,8 @@ class HexagonalPanel extends JPanel {
     private int hexaWidthR = 20;
     private int lineThickness = 1;
     private PixelDrawer drawer = new PixelDrawer();
+
+    private List<Vec2dI> cells;
 
     public HexagonalPanel(int width, int height) {
         this.width = width;
@@ -68,7 +92,6 @@ class HexagonalPanel extends JPanel {
             if (lineThickness < 1) {
                 lineThickness = 1;
             }
-            repaint();
         }
     }
 
@@ -79,51 +102,64 @@ class HexagonalPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         drawHexagonalField(g);
-        drawCells(g);
+        drawCells(g, cells);
         g.setColor(Color.red);
         g.drawString(Integer.toString(hexaWidthR) + " " + Integer.toString(lineThickness), 1, 10);
+        repaint();
     }
 
-    private Vec2dI getPixelbyPlace(int x, int y) {
+    private Vec2d getCenterByPlace(int x, int y) {
+        // Возвращает координаты по расположению ячейки
         double cos30 = Math.sqrt(3)/2.;
-        int xStep = lineThickness + hexaWidthR * 2 - 1; // Подогнал -1
-        double yStep = (int) (2 * hexaWidthR + lineThickness) * cos30; // Подогнал (int)
-        double oddDx = (int) (hexaWidthR * 2 + lineThickness) / 2. - 1; // Подогнал (int) и -1
+//        lineThickness = 0;
+        int lTh = lineThickness - 1; // Ибо координаты
+        int xStep = lTh + hexaWidthR * 2;
+        double yStep = ((2 * hexaWidthR + lTh) * cos30);
+        double oddDx = ((hexaWidthR * 2 + lTh) / 2.);
         int padding = lineThickness;
         boolean oddLine = y % 2 != 0;
-        return new Vec2dI(
-                (int) (Math.round(
-                        padding + xStep * x +
-                                (lineThickness + hexaWidthR * cos30) +
-                                (oddLine ? oddDx : 0)
-                )),
-                (int) (Math.round(
-                        padding + yStep * y +
-                                (lineThickness / cos30 + hexaWidthR)
-                ))
+        return new Vec2d(
+                padding + xStep * x +
+                        (lineThickness /2. + hexaWidthR) + // координата первого 6угольника
+                        (oddLine ? oddDx : 0)
+                ,
+                padding + yStep * y +
+                        (lineThickness /2. + hexaWidthR / cos30) // аналогично
         );
     }
 
     protected void drawHexagonalField(Graphics g) {
         for (int y = 0; y < height; y++) {
             boolean oddLine = y % 2 != 0;
+
+            int i = 0;
             for (int x = 0; x < (width - (oddLine ? 1 : 0)); x++) {
-
-                drawer.drawHexagonal(g, getPixelbyPlace(x, y), hexaWidthR + lineThickness / 2, lineThickness, Color.black);
-            }
-        }
-    }
-
-    protected void drawCells(Graphics g) {
-        for (int y = 0; y < height; y++) {
-            boolean oddLine = y % 2 != 0;
-            for (int x = 0; x < (width - (oddLine ? 1 : 0)); x++) {
-                if (Math.random() > 0.8) {
-
-                    drawer.drawFillHexagonal(g, getPixelbyPlace(x, y), hexaWidthR - 1, Color.green);
+                Color color = Color.blue;
+                switch (i % 3) {
+                    case 0: color = Color.red;
+                        break;
+                    case 1: color = Color.green;
+                        break;
+                    case 2: color = Color.blue;
+                        break;
                 }
+
+                drawer.drawHexagonal(g, getCenterByPlace(x, y), hexaWidthR + (lineThickness - 1) / 2., lineThickness, color);
+                i++;
             }
         }
     }
 
+    protected void drawCells(Graphics g, List<Vec2dI> cells) {
+        if (cells == null) return;
+        for (Vec2dI cell: cells) {
+
+            drawer.drawFillHexagonal(g, getCenterByPlace(cell.getX(), cell.getY()), hexaWidthR - 1, Color.green);
+
+        }
+    }
+
+    public void setCells(List<Vec2dI> cells) {
+        this.cells = cells;
+    }
 }

@@ -152,7 +152,7 @@ public class PixelDrawer {
         return lines;
     }
 
-    private List<Vec2dI> dotsHexagonal(Vec2dI center, int widthR) {
+    private List<Vec2dI> dotsHexagonal(Vec2d center, double widthR) {
         List<Vec2dI> dots = new ArrayList<Vec2dI>();
 
         for (int i = 0; i < 6; i++) {
@@ -164,12 +164,12 @@ public class PixelDrawer {
         return dots;
     }
 
-    private List<BasicLine> linesFillHexagonal(Vec2dI center, int radius) {
+    private List<BasicLine> linesFillHexagonal(Vec2d center, int radius) {
         return linesConvexArea(dotsHexagonal(center, radius));
     }
 
-    private List<BasicLine> linesHexadecimal(Vec2dI center, int widthR, int thickness) {
-        return linesAngledLine(dotsHexagonal(center, widthR), thickness, true);
+    private List<BasicLine> linesHexadecimal(Vec2d center, double widthR, double thickness) {
+        return linesAngledLine(dotsHexagonal(center, widthR), (int) thickness, true);
     }
 
     private List<BasicLine> linesThickLine(Vec2dI p0, Vec2dI p1, int thickness) {
@@ -244,7 +244,7 @@ public class PixelDrawer {
         drawBasicLines(g, linesConvexArea(dots), color);
     }
 
-    public void drawFillHexagonal(Graphics g, Vec2dI center, int radius, Color color) {
+    public void drawFillHexagonal(Graphics g, Vec2d center, int radius, Color color) {
         drawBasicLines(g, linesFillHexagonal(center, radius), color);
     }
 
@@ -252,7 +252,7 @@ public class PixelDrawer {
         drawBasicLines(g, linesThickLine(p0, p1, thickness), color);
     }
 
-    public void drawHexagonal(Graphics g, Vec2dI center, int widthR, int thickness, Color color) {
+    public void drawHexagonal(Graphics g, Vec2d center, double widthR, double thickness, Color color) {
         drawBasicLines(
                 g,
                 linesHexadecimal(center, widthR, thickness),
