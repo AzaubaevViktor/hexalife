@@ -40,11 +40,11 @@
 //    private void changeCoord(int button, Vec2dI p) {
 //        if (button == 1) {
 //            repaint();
-//            if (!p1.eq(p)) p1 = p;
+//            if (!p1.equals(p)) p1 = p;
 //            repaint();
 //        } else if (button == 3) {
 //            repaint();
-//            if (!p2.eq(p)) p2 = p;
+//            if (!p2.equals(p)) p2 = p;
 //            repaint();
 //        }
 //    }

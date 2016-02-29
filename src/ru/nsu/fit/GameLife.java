@@ -4,16 +4,19 @@ import ru.nsu.fit.pixel2d.vectors.Vec2d;
 import ru.nsu.fit.pixel2d.vectors.Vec2dI;
 
 import javax.swing.SwingUtilities;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
-public class GameLife {
+public class GameLife{
 
     private static HexagonalPanel panel;
     private static Model model;
@@ -21,26 +24,9 @@ public class GameLife {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                model = new Model(10, 20);
                 createAndShowGUI(10, 20);
-                model.randomGenerate();
             }
         });
-        int i = 1;
-        while (i < 10) {
-            i++;
-            List<Vec2dI> cells = model.getStates();
-            System.out.println("step");
-            model.step();
-//            panel.setCells(cells);
-            panel.repaint();
-            try {
-                Thread.sleep(2000);
-                // any action
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     private static void createAndShowGUI(int width, int height) {
@@ -48,7 +34,30 @@ public class GameLife {
                 SwingUtilities.isEventDispatchThread());
         JFrame f = new JFrame("Swing Paint Demo");
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        panel = new HexagonalPanel(width, height);
+        //
+        model = new Model(10, 20);
+        model.randomGenerate();
+
+        // MenuBar
+        JMenuBar menuBar = new JMenuBar();
+        JMenu menu = new JMenu("A Menu");
+        menuBar.add(menu);
+        JMenuItem menuItem = new JMenuItem("test");
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                model.step();
+                System.out.println("Lol");
+            }
+        });
+
+        menu.add(menuItem);
+
+        f.setJMenuBar(menuBar);
+
+
+        // Panel
+        panel = new HexagonalPanel(width, height, model);
         f.add(panel);
 //        f.add(new TestPanel());
         f.pack();
@@ -57,7 +66,7 @@ public class GameLife {
 }
 
 
-class HexagonalPanel extends JPanel {
+class HexagonalPanel extends JPanel implements Observer {
 
     private int height;
     private int width;
@@ -66,10 +75,11 @@ class HexagonalPanel extends JPanel {
     private PixelDrawer drawer = new PixelDrawer();
     private HexagonalChecker hexCheck = new HexagonalChecker(drawer);
     BufferedImage imgResult;
+    private Model model;
 
     private List<Vec2dI> cells = new ArrayList<Vec2dI>();
 
-    public HexagonalPanel(int width, int height) {
+    public HexagonalPanel(int width, int height, Model model) {
         this.width = width;
         hexCheck.width = width;
         this.height = height;
@@ -77,6 +87,9 @@ class HexagonalPanel extends JPanel {
         Vec2dI leftDownHex = new Vec2dI(hexCheck.getCenterByPlace(width, height));
         imgResult = new BufferedImage(leftDownHex.getX(), leftDownHex.getY(), BufferedImage.TYPE_INT_RGB);
         drawer.clearAll(imgResult, new Vec2dI(imgResult.getWidth(), imgResult.getHeight()), Color.white);
+
+        this.model = model;
+        model.addObserver(this);
 
         repaint();
         addMouseListener(new MouseAdapter() {
@@ -97,15 +110,8 @@ class HexagonalPanel extends JPanel {
 
     private void mouseHandler(int button, Vec2dI p) {
         if (button == 1) {
-//            hexaWidthR = p.getX() / 10;
-//            lineThickness = p.getY() / 10;
-//            if (lineThickness < 1) {
-//                lineThickness = 1;
-//            }
-            cells.clear();
             Vec2dI coord = hexCheck.getPlaceByClick(p);
             if (coord != null) {
-                System.out.println(coord);
                 setCell(coord);
             }
         }
@@ -117,12 +123,12 @@ class HexagonalPanel extends JPanel {
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Dimension dm = getSize();
 
-        g.drawImage(imgResult, 0, 0, imgResult.getWidth(), imgResult.getHeight(), this);
-
+        g.drawImage(imgResult, 0, 0, this);
+        clearField();
         drawHexagonalField();
         drawCells(cells);
+        System.out.println(cells.size());
         g.setColor(Color.red);
         g.drawString(Integer.toString(hexaWidthR) + " " + Integer.toString(lineThickness), 1, 10);
         repaint();
@@ -132,12 +138,14 @@ class HexagonalPanel extends JPanel {
         for (int y = 0; y < height; y++) {
             boolean oddLine = y % 2 != 0;
 
-            int i = 0;
             for (int x = 0; x < (width - (oddLine ? 1 : 0)); x++) {
                 drawer.drawHexagonal(imgResult, hexCheck.getCenterByPlace(x, y), hexaWidthR + (lineThickness - 1) / 2., lineThickness, Color.black);
-                i++;
             }
         }
+    }
+
+    protected void clearField() {
+        drawer.clearAll(imgResult, new Vec2dI(imgResult.getWidth(), imgResult.getHeight()), Color.white);
     }
 
     protected void drawCells(List<Vec2dI> cells) {
@@ -145,12 +153,22 @@ class HexagonalPanel extends JPanel {
         for (Vec2dI cell: cells) {
 
             drawer.drawFillHexagonal(imgResult, hexCheck.getCenterByPlace(cell.getX(), cell.getY()), hexaWidthR - 1, Color.green);
-
         }
     }
 
     public void setCell(Vec2dI cell) {
-        this.cells.add(cell);
+        model.set(cell.getY(), cell.getX(), true);
+        if (!cells.contains(cell)) {
+            this.cells.add(cell);
+        }
+        repaint();
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        Model model = (Model) o;
+        cells = model.getStates();
+        repaint();
     }
 }
 
@@ -208,10 +226,8 @@ class HexagonalChecker {
     }
 
     public int getPlaceXByClick(int y, Vec2dI click) {
-        double cos30 = Math.sqrt(3)/2.;
         int lTh = lineThickness - 1; // Ибо координаты
         int xStep = lTh + hexaWidthR * 2;
-        double yStep = ((2 * hexaWidthR + lTh) * cos30);
         double oddDx = ((hexaWidthR * 2 + lTh) / 2.);
         int padding = lineThickness;
         boolean oddLine = y % 2 != 0;
@@ -243,10 +259,10 @@ class HexagonalChecker {
         if (x == -1) {
             x = getPlaceXByClick((int) y + 1, click);
             if (x != -1) {
-                return new Vec2dI((int) x, (int) y + 1);
+                return new Vec2dI(x, (int) y + 1);
             }
         } else {
-            return new Vec2dI((int) x, (int) y);
+            return new Vec2dI(x, (int) y);
         }
 
         return null;

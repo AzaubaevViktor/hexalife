@@ -104,7 +104,19 @@ public class Vec2dI {
         return x - other.x;
     }
 
-    public boolean eq(Vec2dI other) {
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Vec2dI other = (Vec2dI) obj;
+        return equals(other);
+    }
+
+    public boolean equals(Vec2dI other) {
         return x == other.x && y == other.y;
     }
 

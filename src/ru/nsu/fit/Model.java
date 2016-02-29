@@ -1,11 +1,13 @@
 package ru.nsu.fit;
 
+import javafx.beans.InvalidationListener;
+import java.util.Observable;
 import ru.nsu.fit.pixel2d.vectors.Vec2dI;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Model {
+public class Model extends Observable {
     public double [][] impact; // y x
     public boolean [][] states; // y x
     private int width = 0, height = 0;
@@ -30,6 +32,8 @@ public class Model {
                 }
             }
         }
+        setChanged();
+        notifyObservers();
     }
 
     public List<Vec2dI> getStates() {
@@ -116,5 +120,7 @@ public class Model {
     public void step() {
         calcImpact();
         setStatesByImpact();
+        setChanged();
+        notifyObservers();
     }
 }
