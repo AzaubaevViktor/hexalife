@@ -33,13 +33,11 @@ public class MainFrame extends JFrame {
 	 */
 	public MainFrame()
 	{
-		try
-		{
+		try {
 			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 		}
-		catch(Exception e)
-		{
-		}
+		catch(Exception ignored){}
+
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		menuBar = new JMenuBar();
 		setJMenuBar(menuBar);

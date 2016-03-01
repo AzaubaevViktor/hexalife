@@ -6,10 +6,7 @@ import ru.nsu.fit.pixel2d.vectors.Vec2dI;
 import javax.swing.SwingUtilities;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,20 +20,22 @@ public class GameLife {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                createAndShowGUI(10, 20);
+                try {
+                    createAndShowGUI(10, 20);
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
 
-    private static void createAndShowGUI(int width, int height) {
+    private static void createAndShowGUI(int width, int height) throws NoSuchMethodException {
         System.out.println("Created GUI on EDT? "+
                 SwingUtilities.isEventDispatchThread());
-        MainFrame f = new MainFrame(600, 600, "Swing Paint Demo");
         // Model
         model = new Model(10, 20);
 
-        // MenuBar
-        createMenu(f);
+        MainFrame f = new GameLifeFrame(600, 600, "Swing Paint Demo", model);
 
         // HexaPanel
         hexagonalPanel = new HexagonalPanel(width, height, model);
@@ -44,78 +43,6 @@ public class GameLife {
 //        f.add(new TestPanel());
         f.pack();
         f.setVisible(true);
-    }
-
-    private static void createMenu(JFrame f) {
-        JMenuBar menuBar = new JMenuBar();
-        JMenu menu;
-        JMenuItem menuItem;
-        // File
-        menu = new JMenu("File");
-        menuBar.add(menu);
-        menuItem = new JMenuItem("New");
-        menuItem.setEnabled(false);
-        menu.add(menuItem);
-        menuItem = new JMenuItem("Open");
-        menuItem.setEnabled(false);
-        menu.add(menuItem);
-        menuItem = new JMenuItem("Save");
-        menuItem.setEnabled(false);
-        menu.add(menuItem);
-
-        // Edit
-        menu = new JMenu("Edit");
-        menuBar.add(menu);
-        menuItem = new JMenuItem("XOR/Replace");
-        menuItem.setEnabled(false);
-        menu.add(menuItem);
-        menuItem = new JMenuItem("Clear");
-        menuItem.setEnabled(false);
-        menu.add(menuItem);
-        menuItem = new JMenuItem("Model");
-        menuItem.setEnabled(false);
-        menu.add(menuItem);
-
-        // View
-        menu = new JMenu("View");
-        menuBar.add(menu);
-        menuItem = new JMenuItem("Display impact values");
-        menuItem.setEnabled(false);
-        menu.add(menuItem);
-        menuItem = new JMenuItem("Step");
-        menuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                model.step();
-            }
-        });
-        menu.add(menuItem);
-        menuItem = new JMenuItem("Start/Pause");
-        menuItem.setEnabled(false);
-        menu.add(menuItem);
-
-        // Help
-        menu = new JMenu("Help");
-        menuBar.add(menu);
-        menuItem = new JMenuItem("About");
-        menuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFrame about = new JFrame("About");
-                about.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-                about.setSize(400, 200);
-                JPanel panel = new JPanel();
-                panel.setLayout(new FlowLayout());
-                panel.add(new JLabel("Life game prototype |"));
-                panel.add(new JLabel("FIT NSU, Korovin 13204 @2016"));
-                about.setContentPane(panel);
-                about.setVisible(true);
-
-            }
-        });
-        menu.add(menuItem);
-
-        f.setJMenuBar(menuBar);
     }
 }
 
@@ -125,7 +52,7 @@ class HexagonalPanel extends JPanel implements Observer {
     private int height;
     private int width;
     private int hexaWidthR = 40;
-    private int lineThickness = 1;
+    private int lineThickness = 10;
     private PixelDrawer drawer = new PixelDrawer();
     private HexagonalChecker hexCheck = new HexagonalChecker(drawer);
     BufferedImage imgResult;
