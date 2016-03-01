@@ -36,25 +36,10 @@ public class GameLife{
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         //
         model = new Model(10, 20);
-        model.randomGenerate();
+//        model.randomGenerate();
 
         // MenuBar
-        JMenuBar menuBar = new JMenuBar();
-        JMenu menu = new JMenu("A Menu");
-        menuBar.add(menu);
-        JMenuItem menuItem = new JMenuItem("test");
-        menuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                model.step();
-                System.out.println("Lol");
-            }
-        });
-
-        menu.add(menuItem);
-
-        f.setJMenuBar(menuBar);
-
+        createMenu(f);
 
         // Panel
         panel = new HexagonalPanel(width, height, model);
@@ -62,6 +47,64 @@ public class GameLife{
 //        f.add(new TestPanel());
         f.pack();
         f.setVisible(true);
+    }
+
+    private static void createMenu(JFrame f) {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu menu;
+        JMenuItem menuItem;
+        // File
+        menu = new JMenu("File");
+        menuBar.add(menu);
+        menuItem = new JMenuItem("New");
+        menuItem.setEnabled(false);
+        menu.add(menuItem);
+        menuItem = new JMenuItem("Open");
+        menuItem.setEnabled(false);
+        menu.add(menuItem);
+        menuItem = new JMenuItem("Save");
+        menuItem.setEnabled(false);
+        menu.add(menuItem);
+
+        // Edit
+        menu = new JMenu("Edit");
+        menuBar.add(menu);
+        menuItem = new JMenuItem("XOR/Replace");
+        menuItem.setEnabled(false);
+        menu.add(menuItem);
+        menuItem = new JMenuItem("Clear");
+        menuItem.setEnabled(false);
+        menu.add(menuItem);
+        menuItem = new JMenuItem("Model");
+        menuItem.setEnabled(false);
+        menu.add(menuItem);
+
+        // View
+        menu = new JMenu("View");
+        menuBar.add(menu);
+        menuItem = new JMenuItem("Display impact values");
+        menuItem.setEnabled(false);
+        menu.add(menuItem);
+        menuItem = new JMenuItem("Step");
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                model.step();
+            }
+        });
+        menu.add(menuItem);
+        menuItem = new JMenuItem("Start/Pause");
+        menuItem.setEnabled(false);
+        menu.add(menuItem);
+
+        // Help
+        menu = new JMenu("Help");
+        menuBar.add(menu);
+        menuItem = new JMenuItem("About");
+        menuItem.setEnabled(false);
+        menu.add(menuItem);
+
+        f.setJMenuBar(menuBar);
     }
 }
 
