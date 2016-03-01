@@ -16,8 +16,7 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-public class GameLife{
-
+public class GameLife {
     private static HexagonalPanel hexagonalPanel;
     private static Model model;
 
@@ -125,7 +124,7 @@ class HexagonalPanel extends JPanel implements Observer {
 
     private int height;
     private int width;
-    private int hexaWidthR = 20;
+    private int hexaWidthR = 40;
     private int lineThickness = 1;
     private PixelDrawer drawer = new PixelDrawer();
     private HexagonalChecker hexCheck = new HexagonalChecker(drawer);
@@ -139,6 +138,9 @@ class HexagonalPanel extends JPanel implements Observer {
         hexCheck.width = width;
         this.height = height;
         hexCheck.width = width;
+        hexCheck.hexaWidthR = hexaWidthR;
+        hexCheck.lineThickness = lineThickness;
+
         Vec2dI leftDownHex = new Vec2dI(hexCheck.getCenterByPlace(width, height));
         imgResult = new BufferedImage(leftDownHex.getX(), leftDownHex.getY(), BufferedImage.TYPE_INT_RGB);
         drawer.clearAll(imgResult, new Vec2dI(imgResult.getWidth(), imgResult.getHeight()), Color.white);
@@ -183,7 +185,6 @@ class HexagonalPanel extends JPanel implements Observer {
         clearField();
         drawHexagonalField();
         drawCells(cells);
-        System.out.println(cells.size());
         g.setColor(Color.red);
         g.drawString(Integer.toString(hexaWidthR) + " " + Integer.toString(lineThickness), 1, 10);
         repaint();
@@ -231,8 +232,8 @@ class HexagonalChecker {
     private PixelDrawer drawer;
     public int height;
     public int width;
-    public int hexaWidthR = 20;
-    public int lineThickness = 1;
+    public int hexaWidthR;
+    public int lineThickness;
 
     public HexagonalChecker(PixelDrawer drawer) {
         this.drawer = drawer;
@@ -308,9 +309,7 @@ class HexagonalChecker {
                 hexaWidthR / cos30 // выравнивающий коэффициент, чтобы сдвинуть целые значения к началу интервала
         ) / yStep;
 
-        int x = -1;
-
-        x = getPlaceXByClick((int) y, click);
+        int x = getPlaceXByClick((int) y, click);
         if (x == -1) {
             x = getPlaceXByClick((int) y + 1, click);
             if (x != -1) {
