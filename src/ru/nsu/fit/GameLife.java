@@ -18,7 +18,7 @@ import java.util.Observer;
 
 public class GameLife{
 
-    private static HexagonalPanel panel;
+    private static HexagonalPanel hexagonalPanel;
     private static Model model;
 
     public static void main(String[] args) {
@@ -32,18 +32,16 @@ public class GameLife{
     private static void createAndShowGUI(int width, int height) {
         System.out.println("Created GUI on EDT? "+
                 SwingUtilities.isEventDispatchThread());
-        JFrame f = new JFrame("Swing Paint Demo");
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //
+        MainFrame f = new MainFrame(600, 600, "Swing Paint Demo");
+        // Model
         model = new Model(10, 20);
-//        model.randomGenerate();
 
         // MenuBar
         createMenu(f);
 
-        // Panel
-        panel = new HexagonalPanel(width, height, model);
-        f.add(panel);
+        // HexaPanel
+        hexagonalPanel = new HexagonalPanel(width, height, model);
+        f.add(hexagonalPanel);
 //        f.add(new TestPanel());
         f.pack();
         f.setVisible(true);
@@ -101,7 +99,21 @@ public class GameLife{
         menu = new JMenu("Help");
         menuBar.add(menu);
         menuItem = new JMenuItem("About");
-        menuItem.setEnabled(false);
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFrame about = new JFrame("About");
+                about.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+                about.setSize(400, 200);
+                JPanel panel = new JPanel();
+                panel.setLayout(new FlowLayout());
+                panel.add(new JLabel("Life game prototype |"));
+                panel.add(new JLabel("FIT NSU, Korovin 13204 @2016"));
+                about.setContentPane(panel);
+                about.setVisible(true);
+
+            }
+        });
         menu.add(menuItem);
 
         f.setJMenuBar(menuBar);
