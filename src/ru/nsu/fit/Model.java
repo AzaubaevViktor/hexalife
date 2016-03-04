@@ -1,6 +1,5 @@
 package ru.nsu.fit;
 
-import javafx.beans.InvalidationListener;
 import java.util.Observable;
 import ru.nsu.fit.pixel2d.vectors.Vec2dI;
 
@@ -23,10 +22,17 @@ public class Model extends Observable {
         states = new boolean[height][width];
     }
 
+    private int getWidthLine(int y) {
+        return width + ((y % 2 == 0) ? 0 : -1);
+    }
+
+    private boolean checkXY(int x, int y) {
+        return ((0 <= x) && (x < getWidthLine(y))) && ((0 <= y) && (y < height));
+    }
+
     public void randomGenerate() {
         for (int y = 0; y < height; y++) {
-            int width_line = width + ((y % 2 == 0) ? 0 : -1);
-            for (int x = 0; x < width_line; x++) {
+            for (int x = 0; x < getWidthLine(y); x++) {
                 if (Math.random() > 0.8) {
                     states[y][x] = true;
                 }
@@ -39,8 +45,8 @@ public class Model extends Observable {
     public List<Vec2dI> getStates() {
         List<Vec2dI> cells = new ArrayList<Vec2dI>();
         for (int y = 0; y < height; y++) {
-            int width_line = width + ((y % 2 == 0) ? 0 : -1);
-            for (int x = 0; x < width_line; x++) {
+            int widthLine = getWidthLine(y);
+            for (int x = 0; x < widthLine; x++) {
                 if (states[y][x]) {
                     cells.add(new Vec2dI(x, y));
                 }
@@ -50,41 +56,47 @@ public class Model extends Observable {
     }
 
     public void set(int y, int x, boolean isAlive) {
-        int width_line = width + ((y % 2 == 0) ? 0 : -1);
-        if (((0 <= x) && (x < width_line)) && ((0 <= y) && (y < height))) {
+        if (checkXY(x, y)) {
             states[y][x] = isAlive;
         }
     }
 
     private boolean get(int y, int x) {
         // Про нечётные строки
-        int width_line = width + ((y % 2 == 0) ? 0 : -1);
-        return ((0 <= x) && (x < width_line)) && ((0 <= y) && (y < height)) && states[y][x];
+        return checkXY(x, y) && states[y][x];
     }
 
-    private void calcImpact() {
+    public double getImpact(int y, int x) {
+        if (checkXY(x, y)) {
+            return impact[y][x];
+        } else {
+            return -1;
+        }
+
+    }
+
+    public void recalcImpact() {
         // Матрица: dy, dx, dist
         // Эта для строк
         int[][][] matrix = {
-                { // Для чётных
-                        {-2, 0, 1},
-                        {-1, -1, 1}, {-1, 0, 0}, {-1, 1, 0}, {-1, 2, 1},
-                        {0, -1, 0}, {0, 1, 0},
-                        {1, -1, 1}, {1, 0, 0}, {1, 1, 0}, {1, 2, 1},
-                        {2, 0, 1}
-                },
                 { // Для нечётных
                         {-2, 0, 1},
                         {-1, -2, 1}, {-1, -1, 0}, {-1, 0, 0}, {-1, 1, 1},
                         {0, -1, 0}, {0, 1, 0},
                         {1, -2, 1}, {1, -1, 0}, {1, 0, 0}, {1, 1, 1},
                         {2, 0, 1}
+                },
+                { // Для чётных
+                        {-2, 0, 1},
+                        {-1, -1, 1}, {-1, 0, 0}, {-1, 1, 0}, {-1, 2, 1},
+                        {0, -1, 0}, {0, 1, 0},
+                        {1, -1, 1}, {1, 0, 0}, {1, 1, 0}, {1, 2, 1},
+                        {2, 0, 1}
                 }
-
         };
 
         for (int y = 0; y < height; y++) {
-            int width_line = width + ((y % 2 == 0) ? 0 : -1);
+            int width_line = getWidthLine(y);
             for (int x = 0; x < width_line; x++) {
                 int[] neight = {0, 0};
                 for (int j = 0; j < 12; j++) {
@@ -100,7 +112,7 @@ public class Model extends Observable {
     private void setStatesByImpact() {
         double imp;
         for (int y = 0; y < height; y++) {
-            int width_line = width + ((y % 2 == 0) ? 0 : -1);
+            int width_line = getWidthLine(y);
             for (int x = 0; x < width_line; x++) {
                 imp = impact[y][x];
                 // Смерть от одиночества или перенаселённости или продолжение нежития
@@ -118,7 +130,7 @@ public class Model extends Observable {
     }
 
     public void step() {
-        calcImpact();
+        recalcImpact();
         setStatesByImpact();
         setChanged();
         notifyObservers();

@@ -51,8 +51,8 @@ class HexagonalPanel extends JPanel implements Observer {
 
     private int height;
     private int width;
-    private int hexaWidthR = 40;
-    private int lineThickness = 10;
+    private int hexaWidthR = 20;
+    private int lineThickness = 1;
     private PixelDrawer drawer = new PixelDrawer();
     private HexagonalChecker hexCheck = new HexagonalChecker(drawer);
     BufferedImage imgResult;
@@ -114,6 +114,7 @@ class HexagonalPanel extends JPanel implements Observer {
         drawCells(cells);
         g.setColor(Color.red);
         g.drawString(Integer.toString(hexaWidthR) + " " + Integer.toString(lineThickness), 1, 10);
+        drawImpacts();
         repaint();
     }
 
@@ -134,13 +135,35 @@ class HexagonalPanel extends JPanel implements Observer {
     protected void drawCells(List<Vec2dI> cells) {
         if (cells == null) return;
         for (Vec2dI cell: cells) {
-
             drawer.drawFillHexagonal(imgResult, hexCheck.getCenterByPlace(cell.getX(), cell.getY()), hexaWidthR - 1, Color.green);
         }
     }
 
+    protected void drawImpacts() {
+        for (int y = 0; y < height; y++) {
+            boolean oddLine = y % 2 != 0;
+            for (int x = 0; x < (width - (oddLine ? 1 : 0)); x++) {
+                Vec2d center = hexCheck.getCenterByPlace(x, y);
+                Graphics2D g2d = (Graphics2D) imgResult.getGraphics();
+                g2d.setColor(Color.black);
+
+                int font_size = 16;
+
+                Font font = new Font("Monospace", Font.PLAIN, font_size);
+                g2d.setFont(font);
+
+                String value = Double.toString(model.getImpact(y, x));
+
+
+                g2d.drawString(value, (int) center.getX() - font_size * value.length() / 4, (int) center.getY() + font_size / 2);
+            }
+        }
+
+    }
+
     public void setCell(Vec2dI cell) {
         model.set(cell.getY(), cell.getX(), true);
+        model.recalcImpact();
         if (!cells.contains(cell)) {
             this.cells.add(cell);
         }
