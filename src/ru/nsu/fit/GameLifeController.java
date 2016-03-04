@@ -77,12 +77,14 @@ class Settings extends JFrame implements ActionListener, ChangeListener, Propert
     private final HexagonalPanel hexagonalPanel;
     private final JFormattedTextField hexaWidthRInput;
     private final JSlider hexaWidthRSlider;
+    private final JFormattedTextField lineThInput;
+    private final JSlider lineThSlider;
 
     Settings(Model model, HexagonalPanel hexagonalPanel) {
         this.model = model;
         this.hexagonalPanel = hexagonalPanel;
         this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        this.setLayout(new GridLayout(2, 5));
+        this.setLayout(new GridLayout(2, 3));
         this.setSize(400, 200);
 
         double[] params = model.getParams();
@@ -90,17 +92,31 @@ class Settings extends JFrame implements ActionListener, ChangeListener, Propert
         JLabel hexaWidthRLabel = new JLabel("Размер шестиугольников");
         hexaWidthRInput = new JFormattedTextField(20);
         hexaWidthRInput.setName("hexaWidthRInput");
-        hexaWidthRSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 20);
+        hexaWidthRSlider = new JSlider(JSlider.HORIZONTAL, 5, 100, 20);
         hexaWidthRSlider.setName("hexaWidthRSlider");
-        final JFormattedTextField hexaWidthRInput2 = new JFormattedTextField(6);
+
+        JLabel lineThLabel = new JLabel("Толщина линии");
+        lineThInput = new JFormattedTextField(1);
+        lineThInput.setName("lineThInput");
+        lineThSlider = new JSlider(JSlider.HORIZONTAL, 1, 10, 1);
+        lineThSlider.setName("lineThSlider");
+
+
 
         hexaWidthRInput.addPropertyChangeListener(this);
         hexaWidthRSlider.addChangeListener(this);
+        lineThInput.addPropertyChangeListener(this);
+        lineThSlider.addChangeListener(this);
 
         this.add(hexaWidthRLabel);
         this.add(hexaWidthRInput);
+//        this.add(new JSeparator());
         this.add(hexaWidthRSlider);
-        this.add(hexaWidthRInput2);
+
+        this.add(lineThLabel);
+        this.add(lineThInput);
+//        this.add(new JSeparator());
+        this.add(lineThSlider);
     }
 
     @Override
@@ -114,6 +130,10 @@ class Settings extends JFrame implements ActionListener, ChangeListener, Propert
         switch(source.getName()) {
             case "hexaWidthRSlider":
                 hexaWidthRInput.setValue(source.getValue());
+                break;
+            case "lineThSlider":
+                lineThInput.setValue(source.getValue());
+                break;
         }
     }
 
@@ -122,12 +142,15 @@ class Settings extends JFrame implements ActionListener, ChangeListener, Propert
 
         switch (evt.getPropertyName()) {
             case "value":
-                System.out.println(evt.toString());
                 JFormattedTextField source = (JFormattedTextField) evt.getSource();
                 switch (source.getName()) {
                     case "hexaWidthRInput":
-                        hexagonalPanel.setDrawParams((Integer) evt.getNewValue(), 1);
+                        hexagonalPanel.setDrawParams((Integer) evt.getNewValue(), (Integer) lineThInput.getValue());
                         hexaWidthRSlider.setValue((Integer) evt.getNewValue());
+                        break;
+                    case "lineThInput":
+                        hexagonalPanel.setDrawParams((Integer) hexaWidthRInput.getValue(), (Integer) evt.getNewValue());
+                        lineThSlider.setValue((Integer) evt.getNewValue());
                         break;
                 }
                 break;
