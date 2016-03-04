@@ -13,7 +13,7 @@ public class Model extends Observable {
 
     // GameParams
 
-    public double LIVE_BEGIN = 2.0, LIVE_END = 3.3, BIRTH_BEGIN = 2.3, BIRTH_END = 2.9, FST_IMPACT = 1.0, SND_IMPACT = 0.3;
+    private double liveBegin = 2.0, liveEnd = 3.3, birthBegin = 2.3, birthEnd = 2.9, fstImpact = 1.0, sndImpact = 0.3;
 
     public Model(int width, int height) {
         this.width = width;
@@ -104,7 +104,7 @@ public class Model extends Observable {
                     int yi = y + matrix[y % 2][j][0];
                     if (get(yi, xi)) neight[matrix[y % 2][j][2]] += 1;
                 }
-                impact[y][x] = neight[0] * FST_IMPACT + neight[1] * SND_IMPACT;
+                impact[y][x] = neight[0] * fstImpact + neight[1] * sndImpact;
             }
         }
     }
@@ -116,17 +116,37 @@ public class Model extends Observable {
             for (int x = 0; x < width_line; x++) {
                 imp = impact[y][x];
                 // Смерть от одиночества или перенаселённости или продолжение нежития
-                if ((imp < LIVE_BEGIN) || (imp > LIVE_END)) set(y, x, false);
+                if ((imp < liveBegin) || (imp > liveEnd)) set(y, x, false);
                 // Рождение если мёртвый, продолжение жизни если живой
-                else if ((BIRTH_BEGIN <= imp) && (imp <= BIRTH_END)) set(y, x, true);
+                else if ((birthBegin <= imp) && (imp <= birthEnd)) set(y, x, true);
                 // Продолжение жизни
-                else if (get(y, x) && (LIVE_BEGIN <= imp) && (imp <= LIVE_END)) {
+                else if (get(y, x) && (liveBegin <= imp) && (imp <= liveEnd)) {
                     set(y, x, true);
                 }
                 // Смерть в ином случае
                 else set(y, x, false);
             }
         }
+    }
+
+    public double[] getParams() {
+        return new double[]{liveBegin, birthBegin, birthEnd, liveEnd};
+    }
+
+    public void setParams(double [] params) throws ChangeParamsError {
+        if (params.length != 4) {
+            throw new ChangeParamsError("Ошибка при установке параметров");
+        }
+
+        for (int i = 0; i < 3; i++) {
+            if (params[i] >= params[i + 1]) {
+                throw new ChangeParamsError("Параметры должны возрастать");
+            }
+        }
+        liveBegin = params[0];
+        birthBegin = params[1];
+        birthEnd = params[2];
+        liveEnd = params[3];
     }
 
     public void step() {

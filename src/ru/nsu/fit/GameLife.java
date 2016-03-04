@@ -35,10 +35,11 @@ public class GameLife {
         // Model
         model = new Model(10, 20);
 
-        MainFrame f = new GameLifeFrame(600, 600, "Swing Paint Demo", model);
-
         // HexaPanel
         hexagonalPanel = new HexagonalPanel(width, height, model);
+
+        MainFrame f = new GameLifeFrame(600, 600, "Swing Paint Demo", model, hexagonalPanel);
+
         f.add(hexagonalPanel);
 //        f.add(new TestPanel());
         f.pack();
@@ -51,8 +52,8 @@ class HexagonalPanel extends JPanel implements Observer {
 
     private int height;
     private int width;
-    private int hexaWidthR = 20;
-    private int lineThickness = 1;
+    private int hexaWidthR;
+    private int lineThickness;
     private PixelDrawer drawer = new PixelDrawer();
     private HexagonalChecker hexCheck = new HexagonalChecker(drawer);
     BufferedImage imgResult;
@@ -61,12 +62,8 @@ class HexagonalPanel extends JPanel implements Observer {
     private List<Vec2dI> cells = new ArrayList<Vec2dI>();
 
     public HexagonalPanel(int width, int height, Model model) {
-        this.width = width;
-        hexCheck.width = width;
-        this.height = height;
-        hexCheck.width = width;
-        hexCheck.hexaWidthR = hexaWidthR;
-        hexCheck.lineThickness = lineThickness;
+        setGridSize(width, height);
+        setDrawParams(20, 1);
 
         Vec2dI leftDownHex = new Vec2dI(hexCheck.getCenterByPlace(width, height));
         imgResult = new BufferedImage(leftDownHex.getX(), leftDownHex.getY(), BufferedImage.TYPE_INT_RGB);
@@ -90,6 +87,16 @@ class HexagonalPanel extends JPanel implements Observer {
                 mouseHandler(button, new Vec2dI(e.getX(), e.getY()));
             }
         });
+    }
+
+    public void setDrawParams(int hexaWidthR, int lineThickness) {
+        hexCheck.hexaWidthR = this.hexaWidthR = hexaWidthR;
+        hexCheck.lineThickness = this.lineThickness = lineThickness;
+    }
+
+    public void setGridSize(int width, int height) {
+        hexCheck.width = this.width = width;
+        hexCheck.height = this.height = height;
     }
 
     private void mouseHandler(int button, Vec2dI p) {
