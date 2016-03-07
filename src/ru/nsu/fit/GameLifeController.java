@@ -15,6 +15,7 @@ import java.beans.PropertyChangeListener;
 
 class GameLifeFrame extends MainFrame {
     private final ModelSettings modelSettings;
+    private final HexagonalPanel hexagonalPanel;
     private Model model;
     private JFrame about;
     private JFrame viewSettings;
@@ -22,14 +23,16 @@ class GameLifeFrame extends MainFrame {
     GameLifeFrame(int x, int y, String title, Model model, HexagonalPanel hexagonalPanel) {
         super(x, y, title);
         this.model = model;
+        this.hexagonalPanel = hexagonalPanel;
+
         try {
             createAllMenus();
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
         createAboutFrame();
-        viewSettings = new viewSettings(hexagonalPanel);
-        modelSettings = new ModelSettings(model, hexagonalPanel);
+        viewSettings = new viewSettings(this.hexagonalPanel);
+        modelSettings = new ModelSettings(model, this.hexagonalPanel);
     }
 
     private void createAllMenus() throws NoSuchMethodException {
@@ -42,7 +45,7 @@ class GameLifeFrame extends MainFrame {
         addSubMenu("Edit/Clear", KeyEvent.VK_E);
         addMenuItem("Edit/Model", "Show model viewSettings", KeyEvent.VK_M, "showModelSettings");
         addSubMenu("View", KeyEvent.VK_V);
-        addSubMenu("View/Display Impact Values", KeyEvent.VK_E);
+        addMenuItem("View/Display Impact Values", "On/Off", KeyEvent.VK_E, "changeDrawImpact");
         addMenuItem("View/Step", "Do step", KeyEvent.VK_E, "doStep");
         addSubMenu("View/Start\\Pause", KeyEvent.VK_E);
         addMenuItem("View/Settings", "Show viewSettings window", KeyEvent.VK_E, "showViewSettings");
@@ -74,6 +77,10 @@ class GameLifeFrame extends MainFrame {
     }
 
     public void showModelSettings() { modelSettings.setVisible(true); }
+
+    public void changeDrawImpact() {
+        this.hexagonalPanel.needDrawImpact = !this.hexagonalPanel.needDrawImpact;
+    }
 }
 
 
@@ -163,7 +170,7 @@ class ModelSettings extends JFrame implements ActionListener {
         this.hexagonalPanel = hexagonalPanel;
 
         this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        this.setLayout(new GridLayout(2, 3));
+        this.setLayout(new GridLayout(3, 3));
         this.setSize(400, 100);
 
         Vec2dI size = model.getSize();

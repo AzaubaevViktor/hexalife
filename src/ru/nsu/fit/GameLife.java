@@ -58,6 +58,7 @@ class HexagonalPanel extends JPanel implements Observer {
     private HexagonalChecker hexCheck = new HexagonalChecker(drawer);
     BufferedImage imgResult;
     private Model model;
+    public boolean needDrawImpact = false;
 
     private List<Vec2dI> cells = new ArrayList<Vec2dI>();
 
@@ -121,7 +122,9 @@ class HexagonalPanel extends JPanel implements Observer {
         drawCells(cells);
         g.setColor(Color.red);
         g.drawString(Integer.toString(hexaWidthR) + " " + Integer.toString(lineThickness), 1, 10);
-        drawImpacts();
+        if (needDrawImpact) {
+            drawImpacts();
+        }
         repaint();
     }
 
