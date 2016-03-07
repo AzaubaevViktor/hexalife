@@ -37,11 +37,11 @@ class GameLifeFrame extends MainFrame {
         addSubMenu("Edit", KeyEvent.VK_E);
         addSubMenu("Edit/XOR\\Replace", KeyEvent.VK_E);
         addSubMenu("Edit/Clear", KeyEvent.VK_E);
-        addMenuItem("Edit/Settings", "Show settings window", KeyEvent.VK_E, "showSettings");
         addSubMenu("View", KeyEvent.VK_V);
         addSubMenu("View/Display Impact Values", KeyEvent.VK_E);
         addMenuItem("View/Step", "Do step", KeyEvent.VK_E, "doStep");
         addSubMenu("View/Start\\Pause", KeyEvent.VK_E);
+        addMenuItem("View/Settings", "Show settings window", KeyEvent.VK_E, "showSettings");
         addSubMenu("Help", KeyEvent.VK_H);
         addMenuItem("Help/About", "Show About Window", KeyEvent.VK_E, "showAbout");
     }
@@ -100,8 +100,6 @@ class Settings extends JFrame implements ActionListener, ChangeListener, Propert
         lineThInput.setName("lineThInput");
         lineThSlider = new JSlider(JSlider.HORIZONTAL, 1, 10, 1);
         lineThSlider.setName("lineThSlider");
-
-
 
         hexaWidthRInput.addPropertyChangeListener(this);
         hexaWidthRSlider.addChangeListener(this);
