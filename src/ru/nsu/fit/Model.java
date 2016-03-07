@@ -22,6 +22,10 @@ public class Model extends Observable {
         states = new boolean[height][width];
     }
 
+    public Vec2dI getSize() {
+        return new Vec2dI(width, height);
+    }
+
     private int getWidthLine(int y) {
         return width + ((y % 2 == 0) ? 0 : -1);
     }
@@ -70,7 +74,7 @@ public class Model extends Observable {
         if (checkXY(x, y)) {
             return impact[y][x];
         } else {
-            return -1;
+            return 0;
         }
 
     }
@@ -155,4 +159,22 @@ public class Model extends Observable {
         setChanged();
         notifyObservers();
     }
+
+    public void changeSize(int width, int height) {
+        double [][] newImpact = new double[height][width];
+        boolean [][] newStates = new boolean[height][width];
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                newImpact[y][x] = getImpact(y, x);
+                newStates[y][x] = get(y, x);
+            }
+        }
+
+        impact = newImpact;
+        states = newStates;
+        this.width = width;
+        this.height = height;
+    }
 }
+

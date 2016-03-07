@@ -62,11 +62,9 @@ class HexagonalPanel extends JPanel implements Observer {
     private List<Vec2dI> cells = new ArrayList<Vec2dI>();
 
     public HexagonalPanel(int width, int height, Model model) {
-        setGridSize(width, height);
         setDrawParams(20, 1);
+        setGridSize(width, height);
 
-        Vec2dI leftDownHex = new Vec2dI(hexCheck.getCenterByPlace(width, height));
-        imgResult = new BufferedImage(leftDownHex.getX(), leftDownHex.getY(), BufferedImage.TYPE_INT_RGB);
         drawer.clearAll(imgResult, new Vec2dI(imgResult.getWidth(), imgResult.getHeight()), Color.white);
 
         this.model = model;
@@ -97,6 +95,8 @@ class HexagonalPanel extends JPanel implements Observer {
     public void setGridSize(int width, int height) {
         hexCheck.width = this.width = width;
         hexCheck.height = this.height = height;
+        Vec2dI leftDownHex = new Vec2dI(hexCheck.getCenterByPlace(width, height));
+        imgResult = new BufferedImage(leftDownHex.getX(), leftDownHex.getY(), BufferedImage.TYPE_INT_RGB);
     }
 
     private void mouseHandler(int button, Vec2dI p) {

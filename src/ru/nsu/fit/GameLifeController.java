@@ -1,32 +1,35 @@
 package ru.nsu.fit;
 
 
+import ru.nsu.fit.pixel2d.vectors.Vec2dI;
+
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 class GameLifeFrame extends MainFrame {
-    private final HexagonalPanel hexagonalPanel;
-    Model model;
+    private final ModelSettings modelSettings;
+    private Model model;
     private JFrame about;
-    private JFrame settings;
+    private JFrame viewSettings;
 
     GameLifeFrame(int x, int y, String title, Model model, HexagonalPanel hexagonalPanel) {
         super(x, y, title);
         this.model = model;
-        this.hexagonalPanel = hexagonalPanel;
         try {
             createAllMenus();
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
         createAboutFrame();
-        settings = new Settings(model, hexagonalPanel);
+        viewSettings = new viewSettings(hexagonalPanel);
+        modelSettings = new ModelSettings(model, hexagonalPanel);
     }
 
     private void createAllMenus() throws NoSuchMethodException {
@@ -37,11 +40,12 @@ class GameLifeFrame extends MainFrame {
         addSubMenu("Edit", KeyEvent.VK_E);
         addSubMenu("Edit/XOR\\Replace", KeyEvent.VK_E);
         addSubMenu("Edit/Clear", KeyEvent.VK_E);
+        addMenuItem("Edit/Model", "Show model viewSettings", KeyEvent.VK_M, "showModelSettings");
         addSubMenu("View", KeyEvent.VK_V);
         addSubMenu("View/Display Impact Values", KeyEvent.VK_E);
         addMenuItem("View/Step", "Do step", KeyEvent.VK_E, "doStep");
         addSubMenu("View/Start\\Pause", KeyEvent.VK_E);
-        addMenuItem("View/Settings", "Show settings window", KeyEvent.VK_E, "showSettings");
+        addMenuItem("View/Settings", "Show viewSettings window", KeyEvent.VK_E, "showViewSettings");
         addSubMenu("Help", KeyEvent.VK_H);
         addMenuItem("Help/About", "Show About Window", KeyEvent.VK_E, "showAbout");
     }
@@ -49,7 +53,7 @@ class GameLifeFrame extends MainFrame {
     private void createAboutFrame() {
         about = new JFrame("About");
         about.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        about.setSize(400, 200);
+        about.setSize(400, 100);
         JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout());
         panel.add(new JLabel("Life game prototype |"));
@@ -65,29 +69,27 @@ class GameLifeFrame extends MainFrame {
         about.setVisible(true);
     }
 
-    public void showSettings() {
-        settings.setVisible(true);
+    public void showViewSettings() {
+        viewSettings.setVisible(true);
     }
+
+    public void showModelSettings() { modelSettings.setVisible(true); }
 }
 
 
-class Settings extends JFrame implements ActionListener, ChangeListener, PropertyChangeListener {
+class viewSettings extends JFrame implements ChangeListener, PropertyChangeListener {
 
-    private final Model model;
     private final HexagonalPanel hexagonalPanel;
     private final JFormattedTextField hexaWidthRInput;
     private final JSlider hexaWidthRSlider;
     private final JFormattedTextField lineThInput;
     private final JSlider lineThSlider;
 
-    Settings(Model model, HexagonalPanel hexagonalPanel) {
-        this.model = model;
+    viewSettings(HexagonalPanel hexagonalPanel) {
         this.hexagonalPanel = hexagonalPanel;
         this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         this.setLayout(new GridLayout(2, 3));
         this.setSize(400, 200);
-
-        double[] params = model.getParams();
 
         JLabel hexaWidthRLabel = new JLabel("Размер шестиугольников");
         hexaWidthRInput = new JFormattedTextField(20);
@@ -108,18 +110,11 @@ class Settings extends JFrame implements ActionListener, ChangeListener, Propert
 
         this.add(hexaWidthRLabel);
         this.add(hexaWidthRInput);
-//        this.add(new JSeparator());
         this.add(hexaWidthRSlider);
 
         this.add(lineThLabel);
         this.add(lineThInput);
-//        this.add(new JSeparator());
         this.add(lineThSlider);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        System.out.println(e.getActionCommand());
     }
 
     @Override
@@ -153,5 +148,54 @@ class Settings extends JFrame implements ActionListener, ChangeListener, Propert
                 }
                 break;
         }
+    }
+}
+
+class ModelSettings extends JFrame implements ActionListener {
+    private final Model model;
+    private final JButton button;
+    private final HexagonalPanel hexagonalPanel;
+    private JFormattedTextField widthInput;
+    private JFormattedTextField heightInput;
+
+    ModelSettings(Model model, HexagonalPanel hexagonalPanel) {
+        this.model = model;
+        this.hexagonalPanel = hexagonalPanel;
+
+        this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        this.setLayout(new GridLayout(2, 3));
+        this.setSize(400, 100);
+
+        Vec2dI size = model.getSize();
+        int width = size.getX();
+        int height = size.getY();
+
+        JLabel widthLabel = new JLabel("Ширина:");
+        widthInput = new JFormattedTextField(width);
+        widthInput.setName("widthInput");
+
+        JLabel heightLabel = new JLabel("Высота:");
+        heightInput = new JFormattedTextField(height);
+        heightInput.setName("heightInput");
+
+        button = new JButton("Apply");
+
+        button.addActionListener(this);
+
+        this.add(widthLabel);
+        this.add(widthInput);
+
+        this.add(heightLabel);
+        this.add(heightInput);
+
+        this.add(button);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        Integer width = (Integer) widthInput.getValue();
+        Integer height = (Integer) heightInput.getValue();
+        model.changeSize(width, height);
+        hexagonalPanel.setGridSize(width, height);
     }
 }
