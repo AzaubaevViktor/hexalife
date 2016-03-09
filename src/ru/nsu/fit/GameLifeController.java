@@ -40,8 +40,8 @@ class GameLifeFrame extends MainFrame {
         addSubMenu("File/New", KeyEvent.VK_N);
         addSubMenu("File/Open", KeyEvent.VK_O);
         addSubMenu("File/Save", KeyEvent.VK_S);
+        addMenuItem("File/Exit", "Exit", KeyEvent.VK_E, "exit");
         addSubMenu("Edit", KeyEvent.VK_E);
-        addSubMenu("Edit/XOR\\Replace", KeyEvent.VK_E);
         addSubMenu("Edit/Clear", KeyEvent.VK_E);
         addMenuItem("Edit/Model", "Show model viewSettings", KeyEvent.VK_M, "showModelSettings");
         addSubMenu("View", KeyEvent.VK_V);
@@ -64,23 +64,17 @@ class GameLifeFrame extends MainFrame {
         about.setContentPane(panel);
     }
 
-    public void doStep() {
-        model.step();
-    }
+    public void doStep() { model.step(); }
 
-    public void showAbout() {
-        about.setVisible(true);
-    }
+    public void showAbout() { about.setVisible(true); }
 
-    public void showViewSettings() {
-        viewSettings.setVisible(true);
-    }
+    public void showViewSettings() { viewSettings.setVisible(true); }
 
     public void showModelSettings() { modelSettings.setVisible(true); }
 
-    public void changeDrawImpact() {
-        this.hexagonalPanel.needDrawImpact = !this.hexagonalPanel.needDrawImpact;
-    }
+    public void changeDrawImpact() { this.hexagonalPanel.needDrawImpact = !this.hexagonalPanel.needDrawImpact; }
+
+    public void exit() { System.exit(0); }
 }
 
 
@@ -91,11 +85,12 @@ class viewSettings extends JFrame implements ChangeListener, PropertyChangeListe
     private final JSlider hexaWidthRSlider;
     private final JFormattedTextField lineThInput;
     private final JSlider lineThSlider;
+    private final JCheckBox xorModeCheckBox;
 
     viewSettings(HexagonalPanel hexagonalPanel) {
         this.hexagonalPanel = hexagonalPanel;
         this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        this.setLayout(new GridLayout(2, 3));
+        this.setLayout(new GridLayout(3, 3));
         this.setSize(400, 200);
 
         JLabel hexaWidthRLabel = new JLabel("Размер шестиугольников");
@@ -109,11 +104,14 @@ class viewSettings extends JFrame implements ChangeListener, PropertyChangeListe
         lineThInput.setName("lineThInput");
         lineThSlider = new JSlider(JSlider.HORIZONTAL, 1, 10, 1);
         lineThSlider.setName("lineThSlider");
+        xorModeCheckBox = new JCheckBox("Xor mode", false);
+        xorModeCheckBox.setName("xorCheckBox");
 
         hexaWidthRInput.addPropertyChangeListener(this);
         hexaWidthRSlider.addChangeListener(this);
         lineThInput.addPropertyChangeListener(this);
         lineThSlider.addChangeListener(this);
+        xorModeCheckBox.addChangeListener(this);
 
         this.add(hexaWidthRLabel);
         this.add(hexaWidthRInput);
@@ -122,18 +120,22 @@ class viewSettings extends JFrame implements ChangeListener, PropertyChangeListe
         this.add(lineThLabel);
         this.add(lineThInput);
         this.add(lineThSlider);
+
+        this.add(xorModeCheckBox);
     }
 
     @Override
     public void stateChanged(ChangeEvent e) {
-        JSlider source = (JSlider) e.getSource();
-        switch(source.getName()) {
+        JComponent rawSource = (JComponent) e.getSource();
+        switch(rawSource.getName()) {
             case "hexaWidthRSlider":
-                hexaWidthRInput.setValue(source.getValue());
+                hexaWidthRInput.setValue(((JSlider) e.getSource()).getValue());
                 break;
             case "lineThSlider":
-                lineThInput.setValue(source.getValue());
+                lineThInput.setValue(((JSlider) e.getSource()).getValue());
                 break;
+            case "xorCheckBox":
+                hexagonalPanel.xorClickMode = ((JCheckBox) e.getSource()).isSelected();
         }
     }
 

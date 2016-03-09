@@ -59,8 +59,10 @@ class HexagonalPanel extends JPanel implements Observer {
     BufferedImage imgResult;
     private Model model;
     public boolean needDrawImpact = false;
+    public boolean xorClickMode = false;
 
-    private List<Vec2dI> cells = new ArrayList<Vec2dI>();
+    private List<Vec2dI> cells = new ArrayList<>();
+    private Vec2dI lastCoord = new Vec2dI(-1, -1);
 
     public HexagonalPanel(int width, int height, Model model) {
         setDrawParams(20, 1);
@@ -103,8 +105,9 @@ class HexagonalPanel extends JPanel implements Observer {
     private void mouseHandler(int button, Vec2dI p) {
         if (button == 1) {
             Vec2dI coord = hexCheck.getPlaceByClick(p);
-            if (coord != null) {
+            if ((coord != null) && (!lastCoord.equals(coord))) {
                 setCell(coord);
+                lastCoord = coord;
             }
         }
     }
@@ -174,7 +177,9 @@ class HexagonalPanel extends JPanel implements Observer {
     public void setCell(Vec2dI cell) {
         model.set(cell.getY(), cell.getX(), true);
         model.recalcImpact();
-        if (!cells.contains(cell)) {
+        if (cells.contains(cell) && xorClickMode) {
+            this.cells.remove(cell);
+        } else {
             this.cells.add(cell);
         }
         repaint();
