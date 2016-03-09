@@ -76,9 +76,9 @@ public class Vec2dI {
     public Vec2dI normal() {
         // Возвращает нормаль, которая всегда смотрит вверх (в сторону увеличения координаты y
         //noinspection SuspiciousNameCombination
-        Vec2dI nrml = new Vec2dI(-y, x);
-        if (x < 0) nrml.turnBack();
-        return nrml;
+        Vec2dI normalVec = new Vec2dI(-y, x);
+        if (x < 0) normalVec.turnBack();
+        return normalVec;
     }
 
     public void move(Vec2d other) {

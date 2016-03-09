@@ -11,11 +11,10 @@ import java.util.List;
 
 public class PixelDrawer {
 
-    private double cos30 = Math.sqrt(3)/2.;
-    private double sin30 = 1/2.;
-    private double tg30 = 1 / Math.sqrt(3);
+    private final double cos30 = Math.sqrt(3)/2.;
+    private final double tg30 = 1 / Math.sqrt(3);
 
-    private Vec2d[] hexCoefMatrix = {
+    private final Vec2d[] hexCoefMatrix = {
             new Vec2d(1, tg30),
             new Vec2d(0, 1 / cos30),
             new Vec2d(-1, tg30),
@@ -54,7 +53,7 @@ public class PixelDrawer {
         int dy = dp.getY();
 
         int y = p0.getY();
-        ArrayList<Vec2dI> pixels = new ArrayList<Vec2dI>();
+        ArrayList<Vec2dI> pixels = new ArrayList<>();
 
         for (int x = p0.getX(); x <= p1.getX(); x++) {
             int _x = steep ? y : x;
@@ -72,8 +71,8 @@ public class PixelDrawer {
     }
 
     private List<BasicLine> linesTriangle(Vec2dI p0, Vec2dI p1, Vec2dI p2) {
-        List<Vec2dI> pixels = new ArrayList<Vec2dI>();
-        List<BasicLine> lines = new ArrayList<BasicLine>();
+        List<Vec2dI> pixels = new ArrayList<>();
+        List<BasicLine> lines = new ArrayList<>();
         // Смотрим пиксели границ
 
         if (p1.dy(p0) == 0 && p2.dy(p1) == 0) {
@@ -87,8 +86,8 @@ public class PixelDrawer {
         pixels.addAll(pixelsLine1(p1, p2));
         pixels.addAll(pixelsLine1(p2, p0));
 
-        Map<Integer, Integer> minXs = new HashMap<Integer, Integer>();
-        Map<Integer, Integer> maxXs = new HashMap<Integer, Integer>();
+        Map<Integer, Integer> minXs = new HashMap<>();
+        Map<Integer, Integer> maxXs = new HashMap<>();
 
         for (Vec2dI pixel: pixels) {
             int x = pixel.getX();
@@ -122,7 +121,7 @@ public class PixelDrawer {
         // Точка или линия
         if (angledLine.size() < 2) return angledLine;
 
-        List<BasicLine> lines = new ArrayList<BasicLine>();
+        List<BasicLine> lines = new ArrayList<>();
 
         Vec2dI p0 = angledLine.remove(0).getStart();
         for (BasicLine line: angledLine) {
@@ -134,7 +133,7 @@ public class PixelDrawer {
     }
 
     private List<BasicLine> linesAngledLine(List<Vec2dI> dots, int thickness, boolean closed) {
-        List<BasicLine> lines = new ArrayList<BasicLine>();
+        List<BasicLine> lines = new ArrayList<>();
 
         // Точка
         if (dots.size() == 1) {
@@ -154,7 +153,7 @@ public class PixelDrawer {
     }
 
     public List<Vec2dI> dotsHexagonal(Vec2d center, double widthR) {
-        List<Vec2dI> dots = new ArrayList<Vec2dI>();
+        List<Vec2dI> dots = new ArrayList<>();
 
         for (int i = 0; i < 6; i++) {
             Vec2d dot = new Vec2d(center);
@@ -174,7 +173,7 @@ public class PixelDrawer {
     }
 
     private List<BasicLine> linesThickLine(Vec2dI p0, Vec2dI p1, int thickness) {
-        List<Vec2dI> dots = new ArrayList<Vec2dI>();
+        List<Vec2dI> dots = new ArrayList<>();
 
         if (thickness == 1) {
             dots.add(p0);
@@ -205,7 +204,7 @@ public class PixelDrawer {
     }
 
     private List<BasicLine> linesRectangle(Vec2dI leftUp, Vec2dI rightDown) {
-        List<BasicLine> lines = new ArrayList<BasicLine>();
+        List<BasicLine> lines = new ArrayList<>();
         for (int x = leftUp.getX(); x < rightDown.getX(); x++) {
             lines.add(new BasicLine(x, leftUp.getY(), x, rightDown.getY(), 1));
         }
@@ -245,7 +244,7 @@ public class PixelDrawer {
     }
 
     public void drawLine1(BufferedImage img, Vec2dI p0, Vec2dI p1, Color color) {
-        ArrayList<BasicLine> lines = new ArrayList<BasicLine>();
+        ArrayList<BasicLine> lines = new ArrayList<>();
         lines.add(new BasicLine(p0, p1, 1));
         drawBasicLines(img, lines, color);
     }

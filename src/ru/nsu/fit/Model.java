@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Model extends Observable {
-    public double [][] impact; // y x
-    public boolean [][] states; // y x
+    private double [][] impact; // y x
+    private boolean [][] states; // y x
     private int width = 0, height = 0;
 
     // GameParams
@@ -47,7 +47,7 @@ public class Model extends Observable {
     }
 
     public List<Vec2dI> getStates() {
-        List<Vec2dI> cells = new ArrayList<Vec2dI>();
+        List<Vec2dI> cells = new ArrayList<>();
         for (int y = 0; y < height; y++) {
             int widthLine = getWidthLine(y);
             for (int x = 0; x < widthLine; x++) {
@@ -79,7 +79,7 @@ public class Model extends Observable {
 
     }
 
-    public void recalcImpact() {
+    public void reCalcImpact() {
         // Матрица: dy, dx, dist
         // Эта для строк
         int[][][] matrix = {
@@ -102,13 +102,13 @@ public class Model extends Observable {
         for (int y = 0; y < height; y++) {
             int width_line = getWidthLine(y);
             for (int x = 0; x < width_line; x++) {
-                int[] neight = {0, 0};
+                int[] height = {0, 0};
                 for (int j = 0; j < 12; j++) {
                     int xi = x + matrix[y % 2][j][1];
                     int yi = y + matrix[y % 2][j][0];
-                    if (get(yi, xi)) neight[matrix[y % 2][j][2]] += 1;
+                    if (get(yi, xi)) height[matrix[y % 2][j][2]] += 1;
                 }
-                impact[y][x] = neight[0] * fstImpact + neight[1] * sndImpact;
+                impact[y][x] = height[0] * fstImpact + height[1] * sndImpact;
             }
         }
     }
@@ -154,7 +154,7 @@ public class Model extends Observable {
     }
 
     public void step() {
-        recalcImpact();
+        reCalcImpact();
         setStatesByImpact();
         setChanged();
         notifyObservers();

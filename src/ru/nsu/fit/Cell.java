@@ -3,7 +3,7 @@ package ru.nsu.fit;
 import ru.nsu.fit.pixel2d.vectors.Vec2dI;
 
 
-public class Cell extends Vec2dI {
+class Cell extends Vec2dI {
     private double impact;
 
     public Cell(int x, int y, double impact) {

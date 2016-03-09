@@ -16,9 +16,9 @@ import java.beans.PropertyChangeListener;
 class GameLifeFrame extends MainFrame {
     private final ModelSettings modelSettings;
     private final HexagonalPanel hexagonalPanel;
-    private Model model;
+    private final Model model;
     private JFrame about;
-    private JFrame viewSettings;
+    private final JFrame viewSettings;
 
     GameLifeFrame(int x, int y, String title, Model model, HexagonalPanel hexagonalPanel) {
         super(x, y, title);
@@ -85,7 +85,6 @@ class viewSettings extends JFrame implements ChangeListener, PropertyChangeListe
     private final JSlider hexaWidthRSlider;
     private final JFormattedTextField lineThInput;
     private final JSlider lineThSlider;
-    private final JCheckBox xorModeCheckBox;
 
     viewSettings(HexagonalPanel hexagonalPanel) {
         this.hexagonalPanel = hexagonalPanel;
@@ -104,7 +103,7 @@ class viewSettings extends JFrame implements ChangeListener, PropertyChangeListe
         lineThInput.setName("lineThInput");
         lineThSlider = new JSlider(JSlider.HORIZONTAL, 1, 10, 1);
         lineThSlider.setName("lineThSlider");
-        xorModeCheckBox = new JCheckBox("Xor mode", false);
+        JCheckBox xorModeCheckBox = new JCheckBox("Xor mode", false);
         xorModeCheckBox.setName("xorCheckBox");
 
         hexaWidthRInput.addPropertyChangeListener(this);
@@ -160,6 +159,7 @@ class viewSettings extends JFrame implements ChangeListener, PropertyChangeListe
     }
 }
 
+@SuppressWarnings("ALL")
 class ModelSettings extends JFrame implements ActionListener {
     private final Model model;
     private final JButton button;

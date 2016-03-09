@@ -7,16 +7,7 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.security.InvalidParameterException;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.JToolBar;
-import javax.swing.MenuElement;
-import javax.swing.UIManager;
+import javax.swing.*;
 
 /**
  * MainFrame - main application frame
@@ -26,7 +17,7 @@ import javax.swing.UIManager;
 public class MainFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JMenuBar menuBar;
-	protected JToolBar toolBar;
+	private JToolBar toolBar;
 
 	/**
 	 * Default constructor which sets up L&F and creates tool-bar and menu-bar 
@@ -38,7 +29,7 @@ public class MainFrame extends JFrame {
 		}
 		catch(Exception ignored){}
 
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 		toolBar = new JToolBar("Main toolbar");
