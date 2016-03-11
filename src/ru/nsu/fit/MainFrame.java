@@ -51,21 +51,8 @@ public class MainFrame extends JFrame {
 		setTitle(title);
 	}
 
-	/**
-	 * Shortcut method to create menu item
-	 * Note that you have to insert it into proper place by yourself
-	 * @param title - menu item title
-	 * @param tooltip - floating tooltip describing menu item
-	 * @param mnemonic - mnemonic key to activate item via keyboard
-	 * @param icon - file name containing icon (must be located in 'resources' subpackage relative to your implementation of MainFrame), can be null
-	 * @param actionMethod - String containing method name which will be called when menu item is activated (method should not take any parameters)
-	 * @return created menu item
-	 * @throws NoSuchMethodException - when actionMethod method not found
-	 * @throws SecurityException - when actionMethod method is inaccessible
-	 */
-	public JMenuItem createMenuItem(String title, String tooltip, int mnemonic, String icon, String actionMethod) throws SecurityException, NoSuchMethodException
+	public JMenuItem modifyMenuItem(JMenuItem item, String title, String tooltip, int mnemonic, String icon, String actionMethod) throws SecurityException, NoSuchMethodException
 	{
-		JMenuItem item = new JMenuItem(title);
 		item.setMnemonic(mnemonic);
 		item.setToolTipText(tooltip);
 		if(icon != null)
@@ -84,6 +71,17 @@ public class MainFrame extends JFrame {
 		});
 		return item;
 	}
+
+    public JMenuItem createMenuItem(String title, String tooltip, int mnemonic, String icon, String actionMethod) throws SecurityException, NoSuchMethodException
+    {
+        return modifyMenuItem(new JMenuItem(title), title, tooltip, mnemonic, null, actionMethod);
+    }
+
+    public JMenuItem createMenuItem(JMenuItem item, String title, String tooltip, int mnemonic, String icon, String actionMethod) throws SecurityException, NoSuchMethodException
+    {
+        return modifyMenuItem(item, title, tooltip, mnemonic, null, actionMethod);
+    }
+
 	
 	/**
 	 * Shortcut method to create menu item (without icon)
@@ -137,6 +135,21 @@ public class MainFrame extends JFrame {
 
         return element;
 	}
+
+    public MenuElement addModifyMenuItem(JMenuItem item, String title, String tooltip, int mnemonic, String icon, String actionMethod) throws SecurityException, NoSuchMethodException
+    {
+        MenuElement element = getParentMenuElement(title);
+        if(element == null)
+            throw new InvalidParameterException("Menu path not found: "+title);
+        createMenuItem(item, getMenuPathName(title), tooltip, mnemonic, icon, actionMethod);
+        if(element instanceof JMenu)
+            ((JMenu)element).add(item);
+        else if(element instanceof JPopupMenu)
+            ((JPopupMenu)element).add(item);
+        else
+            throw new InvalidParameterException("Invalid menu path: "+title);
+        return element;
+    }
 	
 	/**
 	 * Creates menu item and adds it to the specified menu location

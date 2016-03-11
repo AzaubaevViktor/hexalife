@@ -23,6 +23,8 @@ class GameLifeFrame extends MainFrame {
     private final JFrame viewSettings;
 
     private Timer modelTimer;
+    private JMenuItem startMenu;
+    private Color defaultBackground;
 
     GameLifeFrame(int x, int y, String title, Model model, HexagonalPanel hexagonalPanel) {
         super(x, y, title);
@@ -50,12 +52,13 @@ class GameLifeFrame extends MainFrame {
         addMenuItem("Edit/Model", "Show model viewSettings", KeyEvent.VK_M, "showModelSettings");
         addSubMenu("View", KeyEvent.VK_V);
         addMenuItem("View/Step", "Do step", KeyEvent.VK_E, "doStep");
-        addMenuItem("View/Start\\Pause", "StartPause", KeyEvent.VK_E, "startStopModel");
+        addMenuItem("View/Start", "StartPause", KeyEvent.VK_E, "startStopModel");
         addMenuItem("View/Settings", "Show viewSettings window", KeyEvent.VK_E, "showViewSettings");
         addSubMenu("Help", KeyEvent.VK_H);
         addMenuItem("Help/About", "Show About Window", KeyEvent.VK_E, "showAbout");
 
-
+        startMenu = (JMenuItem) getMenuElement("View/Start");
+        defaultBackground = startMenu.getBackground();
     }
 
     private void createAboutFrame() {
@@ -69,12 +72,19 @@ class GameLifeFrame extends MainFrame {
         about.setContentPane(panel);
     }
 
-    public void doStep() { model.step(); }
+    public void doStep() {
+        modelSettings.setEnabled(false, "Нельзя изменять работающую модель");
+        model.step();
+        modelSettings.setEnabled(true, "");
+    }
 
     public void startStopModel() {
         if (model.isRun) {
             modelTimer.cancel();
             model.isRun = false;
+            modelSettings.setEnabled(true, "");
+            startMenu.setBackground(defaultBackground);
+            startMenu.setText("Start");
         } else {
             modelTimer = new Timer();
 
@@ -83,8 +93,11 @@ class GameLifeFrame extends MainFrame {
                 public void run() {
                     model.step();
                 }
-            }, 0, 1000);
+            }, 0, 100);
             model.isRun = true;
+            modelSettings.setEnabled(false, "Нельзя изменять работающую модель");
+            startMenu.setBackground(Color.green);
+            startMenu.setText("Stop");
         }
     }
 
@@ -263,14 +276,11 @@ class ModelSettings extends JFrame implements ActionListener, PropertyChangeList
         model.changeSize(width, height);
         hexagonalPanel.setGridSize(width, height);
 
-
         try {
             model.setParams(getParams());
-            errorLabel.setText("");
-            applyButton.setEnabled(true);
+            insideSetEnabled(true, "");
         } catch (ChangeParamsError changeParamsError) {
-            errorLabel.setText(changeParamsError.toString());
-            applyButton.setEnabled(false);
+            insideSetEnabled(false, changeParamsError.toString());
         }
     }
 
@@ -289,12 +299,20 @@ class ModelSettings extends JFrame implements ActionListener, PropertyChangeList
 
         try {
             model.checkParams(getParams());
-            errorLabel.setText("");
-            applyButton.setEnabled(true);
+            insideSetEnabled(true, "");
         } catch (ChangeParamsError changeParamsError) {
-            errorLabel.setText(changeParamsError.toString());
-            applyButton.setEnabled(false);
+            insideSetEnabled(false, changeParamsError.toString());
         }
+    }
 
+    private void insideSetEnabled(boolean b, String msg) {
+        if (applyButton.isEnabled()) {
+            setEnabled(b, msg);
+        }
+    }
+
+    public void setEnabled(boolean b, String msg) {
+        applyButton.setEnabled(b);
+        errorLabel.setText(msg);
     }
 }
