@@ -88,11 +88,16 @@ class HexagonalPanel extends JPanel implements Observer {
     public void setDrawParams(int hexaWidthR, int lineThickness) {
         hexCheck.hexaWidthR = this.hexaWidthR = hexaWidthR;
         hexCheck.lineThickness = this.lineThickness = lineThickness;
+        updateCanvas();
     }
 
     public void setGridSize(int width, int height) {
         hexCheck.width = this.width = width;
         hexCheck.height = this.height = height;
+        updateCanvas();
+    }
+
+    private void updateCanvas() {
         Vec2dI leftDownHex = new Vec2dI(hexCheck.getCenterByPlace(width, height));
         imgResult = new BufferedImage(leftDownHex.getX(), leftDownHex.getY(), BufferedImage.TYPE_INT_RGB);
     }
@@ -171,10 +176,14 @@ class HexagonalPanel extends JPanel implements Observer {
 
                 Font font = new Font("Monospace", Font.PLAIN, font_size);
                 g2d.setFont(font);
+                FontMetrics fm = g2d.getFontMetrics();
 
                 String value = prettyfyDouble(model.getImpact(y, x));
 
-                g2d.drawString(value, (int) center.getX() - font_size * value.length() / 4, (int) center.getY() + font_size / 2);
+                int sx = (int) (center.getX() - fm.stringWidth(value) / 2.);
+                int sy = (int) (center.getY() - fm.getHeight() / 2.) + fm.getAscent();
+
+                g2d.drawString(value, sx, sy);
             }
         }
 
