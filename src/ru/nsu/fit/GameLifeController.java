@@ -22,7 +22,7 @@ class GameLifeFrame extends MainFrame {
     private JFrame about;
     private final JFrame viewSettings;
 
-    private Timer modelTimer = new Timer();
+    private Timer modelTimer;
 
     GameLifeFrame(int x, int y, String title, Model model, HexagonalPanel hexagonalPanel) {
         super(x, y, title);
@@ -49,12 +49,13 @@ class GameLifeFrame extends MainFrame {
         addMenuItem("Edit/Clear", "Clear field", KeyEvent.VK_E, "clearField");
         addMenuItem("Edit/Model", "Show model viewSettings", KeyEvent.VK_M, "showModelSettings");
         addSubMenu("View", KeyEvent.VK_V);
-        addMenuItem("View/Display Impact Values", "On/Off", KeyEvent.VK_E, "changeDrawImpact");
         addMenuItem("View/Step", "Do step", KeyEvent.VK_E, "doStep");
         addMenuItem("View/Start\\Pause", "StartPause", KeyEvent.VK_E, "startStopModel");
         addMenuItem("View/Settings", "Show viewSettings window", KeyEvent.VK_E, "showViewSettings");
         addSubMenu("Help", KeyEvent.VK_H);
         addMenuItem("Help/About", "Show About Window", KeyEvent.VK_E, "showAbout");
+
+
     }
 
     private void createAboutFrame() {
@@ -75,6 +76,8 @@ class GameLifeFrame extends MainFrame {
             modelTimer.cancel();
             model.isRun = false;
         } else {
+            modelTimer = new Timer();
+
             modelTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
@@ -92,8 +95,6 @@ class GameLifeFrame extends MainFrame {
     public void showViewSettings() { viewSettings.setVisible(true); }
 
     public void showModelSettings() { modelSettings.setVisible(true); }
-
-    public void changeDrawImpact() { this.hexagonalPanel.needDrawImpact = !this.hexagonalPanel.needDrawImpact; }
 
     public void exit() { System.exit(0); }
 }
@@ -126,12 +127,16 @@ class viewSettings extends JFrame implements ChangeListener, PropertyChangeListe
         lineThSlider.setName("lineThSlider");
         JCheckBox xorModeCheckBox = new JCheckBox("Xor mode", false);
         xorModeCheckBox.setName("xorCheckBox");
+        JCheckBox displayImpactCheckBox = new JCheckBox("Display Impacts", false);
+        displayImpactCheckBox.setName("displayImpactCheckBox");
+
 
         hexaWidthRInput.addPropertyChangeListener(this);
         hexaWidthRSlider.addChangeListener(this);
         lineThInput.addPropertyChangeListener(this);
         lineThSlider.addChangeListener(this);
         xorModeCheckBox.addChangeListener(this);
+        displayImpactCheckBox.addChangeListener(this);
 
         this.add(hexaWidthRLabel);
         this.add(hexaWidthRInput);
@@ -142,6 +147,7 @@ class viewSettings extends JFrame implements ChangeListener, PropertyChangeListe
         this.add(lineThSlider);
 
         this.add(xorModeCheckBox);
+        this.add(displayImpactCheckBox);
     }
 
     @Override
@@ -156,6 +162,10 @@ class viewSettings extends JFrame implements ChangeListener, PropertyChangeListe
                 break;
             case "xorCheckBox":
                 hexagonalPanel.xorClickMode = ((JCheckBox) e.getSource()).isSelected();
+                break;
+            case "displayImpactCheckBox":
+                this.hexagonalPanel.needDrawImpact = ((JCheckBox) e.getSource()).isSelected();
+                break;
         }
     }
 
