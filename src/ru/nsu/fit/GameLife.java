@@ -108,6 +108,8 @@ class HexagonalPanel extends JPanel implements Observer {
     }
 
     private void mouseHandler(int button, Vec2dI p) {
+        if (model.isRun) return;
+
         if (button == 1) {
             Vec2dI coord = hexCheck.getPlaceByClick(p);
             if ((coord != null) && (!lastCoord.equals(coord))) {

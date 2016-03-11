@@ -12,6 +12,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Timer;
+import java.util.TimerTask;
 
 class GameLifeFrame extends MainFrame {
     private final ModelSettings modelSettings;
@@ -19,6 +21,8 @@ class GameLifeFrame extends MainFrame {
     private final Model model;
     private JFrame about;
     private final JFrame viewSettings;
+
+    private Timer modelTimer = new Timer();
 
     GameLifeFrame(int x, int y, String title, Model model, HexagonalPanel hexagonalPanel) {
         super(x, y, title);
@@ -47,7 +51,7 @@ class GameLifeFrame extends MainFrame {
         addSubMenu("View", KeyEvent.VK_V);
         addMenuItem("View/Display Impact Values", "On/Off", KeyEvent.VK_E, "changeDrawImpact");
         addMenuItem("View/Step", "Do step", KeyEvent.VK_E, "doStep");
-        addSubMenu("View/Start\\Pause", KeyEvent.VK_E);
+        addMenuItem("View/Start\\Pause", "StartPause", KeyEvent.VK_E, "startStopModel");
         addMenuItem("View/Settings", "Show viewSettings window", KeyEvent.VK_E, "showViewSettings");
         addSubMenu("Help", KeyEvent.VK_H);
         addMenuItem("Help/About", "Show About Window", KeyEvent.VK_E, "showAbout");
@@ -65,6 +69,21 @@ class GameLifeFrame extends MainFrame {
     }
 
     public void doStep() { model.step(); }
+
+    public void startStopModel() {
+        if (model.isRun) {
+            modelTimer.cancel();
+            model.isRun = false;
+        } else {
+            modelTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    model.step();
+                }
+            }, 0, 1000);
+            model.isRun = true;
+        }
+    }
 
     public void showAbout() { about.setVisible(true); }
 

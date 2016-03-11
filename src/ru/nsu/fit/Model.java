@@ -10,6 +10,7 @@ public class Model extends Observable {
     private double [][] impact; // y x
     private boolean [][] states; // y x
     private int width = 0, height = 0;
+    public boolean isRun = false;
 
     // GameParams
 
@@ -158,6 +159,10 @@ public class Model extends Observable {
         setStatesByImpact();
         setChanged();
         notifyObservers();
+    }
+
+    public void start() {
+
     }
 
     public void changeSize(int width, int height) {
