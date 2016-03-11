@@ -159,10 +159,8 @@ class viewSettings extends JFrame implements ChangeListener, PropertyChangeListe
     }
 }
 
-@SuppressWarnings("ALL")
 class ModelSettings extends JFrame implements ActionListener {
     private final Model model;
-    private final JButton button;
     private final HexagonalPanel hexagonalPanel;
     private JFormattedTextField widthInput;
     private JFormattedTextField heightInput;
@@ -187,7 +185,7 @@ class ModelSettings extends JFrame implements ActionListener {
         heightInput = new JFormattedTextField(height);
         heightInput.setName("heightInput");
 
-        button = new JButton("Apply");
+        JButton button = new JButton("Apply");
 
         button.addActionListener(this);
 

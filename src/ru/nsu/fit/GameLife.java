@@ -7,6 +7,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -145,6 +147,18 @@ class HexagonalPanel extends JPanel implements Observer {
         }
     }
 
+    private String prettyfyDouble(Double d) {
+        String newDouble = new BigDecimal(d).setScale(1, RoundingMode.FLOOR).toString();
+        int end = newDouble.length() - 1;
+        for (; end >= 0; end--) {
+            char ch = newDouble.charAt(end);
+            if ((ch != '0') && (ch != '.')) {
+                break;
+            }
+        }
+        return newDouble.substring(0, (end == -1) ? 1 : end + 1);
+    }
+
     private void drawImpacts() {
         for (int y = 0; y < height; y++) {
             boolean oddLine = y % 2 != 0;
@@ -153,13 +167,12 @@ class HexagonalPanel extends JPanel implements Observer {
                 Graphics2D g2d = (Graphics2D) imgResult.getGraphics();
                 g2d.setColor(Color.black);
 
-                int font_size = 16;
+                int font_size = hexaWidthR - 4;
 
                 Font font = new Font("Monospace", Font.PLAIN, font_size);
                 g2d.setFont(font);
 
-                String value = Double.toString(model.getImpact(y, x));
-
+                String value = prettyfyDouble(model.getImpact(y, x));
 
                 g2d.drawString(value, (int) center.getX() - font_size * value.length() / 4, (int) center.getY() + font_size / 2);
             }
@@ -168,13 +181,16 @@ class HexagonalPanel extends JPanel implements Observer {
     }
 
     private void setCell(Vec2dI cell) {
-        model.set(cell.getY(), cell.getX(), true);
-        model.reCalcImpact();
+        boolean newState = true;
         if (cells.contains(cell) && xorClickMode) {
             this.cells.remove(cell);
+            newState = false;
         } else {
             this.cells.add(cell);
+            newState = true;
         }
+        model.set(cell.getY(), cell.getX(), newState);
+        model.reCalcImpact();
         repaint();
     }
 
@@ -182,6 +198,7 @@ class HexagonalPanel extends JPanel implements Observer {
     public void update(Observable o, Object arg) {
         Model model = (Model) o;
         cells = model.getStates();
+        model.reCalcImpact();
         repaint();
     }
 }
