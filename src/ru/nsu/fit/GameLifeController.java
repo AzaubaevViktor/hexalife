@@ -190,9 +190,15 @@ class viewSettings extends JFrame implements ChangeListener, PropertyChangeListe
     }
 }
 
-class ModelSettings extends JFrame implements ActionListener {
+class ModelSettings extends JFrame implements ActionListener, PropertyChangeListener {
     private final Model model;
     private final HexagonalPanel hexagonalPanel;
+    private final JFormattedTextField liveBeginInput;
+    private final JFormattedTextField birthBeginInput;
+    private final JFormattedTextField birthEndInput;
+    private final JFormattedTextField liveEndInput;
+    private final JLabel errorLabel;
+    private final JButton applyButton;
     private JFormattedTextField widthInput;
     private JFormattedTextField heightInput;
 
@@ -201,32 +207,53 @@ class ModelSettings extends JFrame implements ActionListener {
         this.hexagonalPanel = hexagonalPanel;
 
         this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        this.setLayout(new GridLayout(3, 3));
-        this.setSize(400, 100);
+        this.setLayout(new GridLayout(9, 2));
+        this.setSize(400, 400);
 
         Vec2dI size = model.getSize();
         int width = size.getX();
         int height = size.getY();
 
-        JLabel widthLabel = new JLabel("Ширина:");
-        widthInput = new JFormattedTextField(width);
-        widthInput.setName("widthInput");
+        this.add(new JLabel("Параметры поля:"));
+        this.add(new JApplet());
 
-        JLabel heightLabel = new JLabel("Высота:");
-        heightInput = new JFormattedTextField(height);
-        heightInput.setName("heightInput");
+        widthInput = addLabelField("Ширина:", width, "widthInput");
+        heightInput = addLabelField("Высота:", height, "heightInput");
 
-        JButton button = new JButton("Apply");
+        this.add(new JLabel("Параметры игры:"));
+        this.add(new JApplet());
 
-        button.addActionListener(this);
+        double[] params = model.getParams();
 
-        this.add(widthLabel);
-        this.add(widthInput);
+        liveBeginInput = addLabelField("Старт жизни:", params[0], "liveBeginInput");
+        birthBeginInput = addLabelField("Старт рождения:", params[1], "birthBeginInput ");
+        birthEndInput = addLabelField("Конец рождения:", params[2], "birthEndInput ");
+        liveEndInput = addLabelField("Конец жизни:", params[3], "liveEndInput ");
 
-        this.add(heightLabel);
-        this.add(heightInput);
+        liveBeginInput.addPropertyChangeListener(this);
+        birthBeginInput.addPropertyChangeListener(this);
+        birthEndInput.addPropertyChangeListener(this);
+        liveEndInput.addPropertyChangeListener(this);
 
-        this.add(button);
+        applyButton = new JButton("Apply");
+
+        applyButton.addActionListener(this);
+
+        this.add(applyButton);
+
+        errorLabel = new JLabel("");
+        this.add(errorLabel);
+    }
+
+    private JFormattedTextField addLabelField(String label, Object value, String name) {
+        JLabel jLabel = new JLabel(label);
+        JFormattedTextField ftf = new JFormattedTextField(value);
+        ftf.setName(name);
+
+        this.add(jLabel);
+        this.add(ftf);
+
+        return ftf;
     }
 
     @Override
@@ -235,5 +262,39 @@ class ModelSettings extends JFrame implements ActionListener {
         Integer height = (Integer) heightInput.getValue();
         model.changeSize(width, height);
         hexagonalPanel.setGridSize(width, height);
+
+
+        try {
+            model.setParams(getParams());
+            errorLabel.setText("");
+            applyButton.setEnabled(true);
+        } catch (ChangeParamsError changeParamsError) {
+            errorLabel.setText(changeParamsError.toString());
+            applyButton.setEnabled(false);
+        }
+    }
+
+    private double[] getParams() {
+        return new double[]{
+                (Double) liveBeginInput.getValue(),
+                (Double) birthBeginInput.getValue(),
+                (Double) birthEndInput.getValue(),
+                (Double) liveEndInput.getValue()
+        };
+    }
+
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+
+        try {
+            model.checkParams(getParams());
+            errorLabel.setText("");
+            applyButton.setEnabled(true);
+        } catch (ChangeParamsError changeParamsError) {
+            errorLabel.setText(changeParamsError.toString());
+            applyButton.setEnabled(false);
+        }
+
     }
 }

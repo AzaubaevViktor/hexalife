@@ -139,6 +139,14 @@ public class Model extends Observable {
     }
 
     public void setParams(double [] params) throws ChangeParamsError {
+        checkParams(params);
+        liveBegin = params[0];
+        birthBegin = params[1];
+        birthEnd = params[2];
+        liveEnd = params[3];
+    }
+
+    public void checkParams(double[] params) throws ChangeParamsError {
         if (params.length != 4) {
             throw new ChangeParamsError("Ошибка при установке параметров");
         }
@@ -148,10 +156,6 @@ public class Model extends Observable {
                 throw new ChangeParamsError("Параметры должны возрастать");
             }
         }
-        liveBegin = params[0];
-        birthBegin = params[1];
-        birthEnd = params[2];
-        liveEnd = params[3];
     }
 
     public void step() {
@@ -162,6 +166,8 @@ public class Model extends Observable {
     }
 
     public void changeSize(int width, int height) {
+        if ((this.width == width) && (this.height == height)) return;
+
         double [][] newImpact = new double[height][width];
         boolean [][] newStates = new boolean[height][width];
 

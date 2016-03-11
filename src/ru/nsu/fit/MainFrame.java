@@ -115,12 +115,12 @@ public class MainFrame extends JFrame {
 	}
 	
 	/**
-	 * Creates submenu and inserts it to the specified location 
-	 * @param title - submenu title with full path (just submenu title for top-level submenus)
-	 * example: "File/New" - will create submenu "New" under menu "File" (provided that menu "File" was previously created)
-	 * @param mnemonic - mnemonic key to activate submenu via keyboard
-	 */
-	public void addSubMenu(String title, int mnemonic)
+	 * Creates submenu and inserts it to the specified location
+     * @param title - submenu title with full path (just submenu title for top-level submenus)
+     * example: "File/New" - will create submenu "New" under menu "File" (provided that menu "File" was previously created)
+     * @param mnemonic - mnemonic key to activate submenu via keyboard
+     */
+	public MenuElement addSubMenu(String title, int mnemonic)
 	{
 		MenuElement element = getParentMenuElement(title);
 		if(element == null)
@@ -134,6 +134,8 @@ public class MainFrame extends JFrame {
 			((JPopupMenu)element).add(subMenu);
 		else 
 			throw new InvalidParameterException("Invalid menu path: "+title);
+
+        return element;
 	}
 	
 	/**
@@ -147,7 +149,7 @@ public class MainFrame extends JFrame {
 	 * @throws SecurityException - when actionMethod method is inaccessible
 	 * @throws InvalidParameterException - when specified menu location not found
 	 */
-	public void addMenuItem(String title, String tooltip, int mnemonic, String icon, String actionMethod) throws SecurityException, NoSuchMethodException
+	public MenuElement addMenuItem(String title, String tooltip, int mnemonic, String icon, String actionMethod) throws SecurityException, NoSuchMethodException
 	{
 		MenuElement element = getParentMenuElement(title);
 		if(element == null)
@@ -159,6 +161,7 @@ public class MainFrame extends JFrame {
 			((JPopupMenu)element).add(item);
 		else 
 			throw new InvalidParameterException("Invalid menu path: "+title);
+		return element;
 	}
 	
 	/**
@@ -171,9 +174,9 @@ public class MainFrame extends JFrame {
 	 * @throws SecurityException - when actionMethod method is inaccessible
 	 * @throws InvalidParameterException - when specified menu location not found
 	 */
-	public void addMenuItem(String title, String tooltip, int mnemonic, String actionMethod) throws SecurityException, NoSuchMethodException
+	public MenuElement addMenuItem(String title, String tooltip, int mnemonic, String actionMethod) throws SecurityException, NoSuchMethodException
 	{
-		addMenuItem(title, tooltip, mnemonic, null, actionMethod);
+		return addMenuItem(title, tooltip, mnemonic, null, actionMethod);
 	}
 	
 	/**
