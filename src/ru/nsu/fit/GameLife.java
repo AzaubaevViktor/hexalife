@@ -16,7 +16,10 @@ import java.util.Observer;
 
 public class GameLife {
 
+    private static Model model;
+
     public static void main(String[] args) {
+        model = new Model(10, 20);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 createAndShowGUI(10, 20);
@@ -27,8 +30,6 @@ public class GameLife {
     private static void createAndShowGUI(int width, int height) {
         System.out.println("Created GUI on EDT? "+
                 SwingUtilities.isEventDispatchThread());
-        // Model
-        Model model = new Model(10, 20);
 
         // HexaPanel
         HexagonalPanel hexagonalPanel = new HexagonalPanel(width, height, model);
