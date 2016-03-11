@@ -161,10 +161,6 @@ public class Model extends Observable {
         notifyObservers();
     }
 
-    public void start() {
-
-    }
-
     public void changeSize(int width, int height) {
         double [][] newImpact = new double[height][width];
         boolean [][] newStates = new boolean[height][width];
@@ -180,6 +176,17 @@ public class Model extends Observable {
         states = newStates;
         this.width = width;
         this.height = height;
+    }
+
+    public void clear() {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < getWidthLine(y); x++) {
+                states[y][x] = false;
+                impact[y][x] = 0.;
+            }
+        }
+        setChanged();
+        notifyObservers();
     }
 }
 

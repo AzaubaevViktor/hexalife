@@ -46,7 +46,7 @@ class GameLifeFrame extends MainFrame {
         addSubMenu("File/Save", KeyEvent.VK_S);
         addMenuItem("File/Exit", "Exit", KeyEvent.VK_E, "exit");
         addSubMenu("Edit", KeyEvent.VK_E);
-        addSubMenu("Edit/Clear", KeyEvent.VK_E);
+        addMenuItem("Edit/Clear", "Clear field", KeyEvent.VK_E, "clearField");
         addMenuItem("Edit/Model", "Show model viewSettings", KeyEvent.VK_M, "showModelSettings");
         addSubMenu("View", KeyEvent.VK_V);
         addMenuItem("View/Display Impact Values", "On/Off", KeyEvent.VK_E, "changeDrawImpact");
@@ -86,6 +86,8 @@ class GameLifeFrame extends MainFrame {
     }
 
     public void showAbout() { about.setVisible(true); }
+
+    public void clearField() { model.clear(); }
 
     public void showViewSettings() { viewSettings.setVisible(true); }
 
