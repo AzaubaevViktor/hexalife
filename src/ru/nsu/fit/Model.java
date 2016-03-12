@@ -155,18 +155,22 @@ public class Model extends Observable {
             if (params[i] >= params[i + 1]) {
                 throw new ChangeParamsError("Параметры должны возрастать");
             }
+            if ((params[i] < 0) || (params[i + 1] < 0)) {
+                throw new ChangeParamsError("Праметры не могут быть отрицательными");
+            }
         }
     }
 
     public void step() {
-        reCalcImpact();
         setStatesByImpact();
+        reCalcImpact();
         setChanged();
         notifyObservers();
     }
 
-    public void changeSize(int width, int height) {
-        if ((this.width == width) && (this.height == height)) return;
+
+    public void changeSize(int width, int height) throws ChangeParamsError {
+        if (checkSize(width, height)) return;
 
         double [][] newImpact = new double[height][width];
         boolean [][] newStates = new boolean[height][width];
@@ -182,6 +186,14 @@ public class Model extends Observable {
         states = newStates;
         this.width = width;
         this.height = height;
+    }
+
+    public boolean checkSize(int width, int height) throws ChangeParamsError {
+        if ((this.width == width) && (this.height == height)) return true;
+
+        if ((width < 0) || (height < 0))
+            throw new ChangeParamsError("Размеры сетки должны быть положительными");
+        return false;
     }
 
     public void clear() {

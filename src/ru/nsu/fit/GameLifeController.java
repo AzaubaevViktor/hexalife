@@ -214,6 +214,7 @@ class ModelSettings extends JFrame implements ActionListener, PropertyChangeList
     private final JButton applyButton;
     private JFormattedTextField widthInput;
     private JFormattedTextField heightInput;
+    private boolean globalEnabled = true;
 
     ModelSettings(Model model, HexagonalPanel hexagonalPanel) {
         this.model = model;
@@ -232,6 +233,9 @@ class ModelSettings extends JFrame implements ActionListener, PropertyChangeList
 
         widthInput = addLabelField("Ширина:", width, "widthInput");
         heightInput = addLabelField("Высота:", height, "heightInput");
+
+        widthInput.addPropertyChangeListener(this);
+        heightInput.addPropertyChangeListener(this);
 
         this.add(new JLabel("Параметры игры:"));
         this.add(new JApplet());
@@ -273,8 +277,13 @@ class ModelSettings extends JFrame implements ActionListener, PropertyChangeList
     public void actionPerformed(ActionEvent e) {
         Integer width = (Integer) widthInput.getValue();
         Integer height = (Integer) heightInput.getValue();
-        model.changeSize(width, height);
-        hexagonalPanel.setGridSize(width, height);
+        try {
+            model.changeSize(width, height);
+            hexagonalPanel.setGridSize(width, height);
+            insideSetEnabled(true, "");
+        } catch (ChangeParamsError changeParamsError) {
+            insideSetEnabled(false, changeParamsError.toString());
+        }
 
         try {
             model.setParams(getParams());
@@ -296,9 +305,9 @@ class ModelSettings extends JFrame implements ActionListener, PropertyChangeList
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-
         try {
-            model.checkParams(getParams());
+            model.changeSize((int) widthInput.getValue(), (int) heightInput.getValue());
+            model.checkParams(getParams())  ;
             insideSetEnabled(true, "");
         } catch (ChangeParamsError changeParamsError) {
             insideSetEnabled(false, changeParamsError.toString());
@@ -306,12 +315,14 @@ class ModelSettings extends JFrame implements ActionListener, PropertyChangeList
     }
 
     private void insideSetEnabled(boolean b, String msg) {
-        if (applyButton.isEnabled()) {
-            setEnabled(b, msg);
+        if (globalEnabled) {
+            applyButton.setEnabled(b);
+            errorLabel.setText(msg);
         }
     }
 
     public void setEnabled(boolean b, String msg) {
+        globalEnabled = b;
         applyButton.setEnabled(b);
         errorLabel.setText(msg);
     }
