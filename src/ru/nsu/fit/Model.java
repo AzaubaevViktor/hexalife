@@ -60,10 +60,20 @@ public class Model extends Observable {
         return cells;
     }
 
-    public void set(int y, int x, boolean isAlive) {
+    public void set(Vec2dI cell, boolean b) {
+        set(cell.getY(), cell.getX(), b);
+    }
+
+    private void unupdateSet(int y, int x, boolean isAlive) {
         if (checkXY(x, y)) {
             states[y][x] = isAlive;
         }
+    }
+
+    public void set(int y, int x, boolean isAlive) {
+        unupdateSet(y, x, isAlive);
+        setChanged();
+        notifyObservers();
     }
 
     private boolean get(int y, int x) {
@@ -116,20 +126,23 @@ public class Model extends Observable {
 
     private void setStatesByImpact() {
         double imp;
+        boolean newState;
         for (int y = 0; y < height; y++) {
             int width_line = getWidthLine(y);
             for (int x = 0; x < width_line; x++) {
                 imp = impact[y][x];
                 // Смерть от одиночества или перенаселённости или продолжение нежития
-                if ((imp < liveBegin) || (imp > liveEnd)) set(y, x, false);
+                if ((imp < liveBegin) || (imp > liveEnd)) newState = false;
                 // Рождение если мёртвый, продолжение жизни если живой
-                else if ((birthBegin <= imp) && (imp <= birthEnd)) set(y, x, true);
+                else if ((birthBegin <= imp) && (imp <= birthEnd)) newState = true;
                 // Продолжение жизни
                 else if (get(y, x) && (liveBegin <= imp) && (imp <= liveEnd)) {
-                    set(y, x, true);
+                    newState = true;
                 }
                 // Смерть в ином случае
-                else set(y, x, false);
+                else newState = false;
+
+                unupdateSet(y, x, newState);
             }
         }
     }
@@ -144,6 +157,8 @@ public class Model extends Observable {
         birthBegin = params[1];
         birthEnd = params[2];
         liveEnd = params[3];
+        setChanged();
+        notifyObservers();
     }
 
     public void checkParams(double[] params) throws ChangeParamsError {
@@ -161,13 +176,13 @@ public class Model extends Observable {
         }
     }
 
+
     public void step() {
         setStatesByImpact();
         reCalcImpact();
         setChanged();
         notifyObservers();
     }
-
 
     public void changeSize(int width, int height) throws ChangeParamsError {
         if (checkSize(width, height)) return;
@@ -186,6 +201,8 @@ public class Model extends Observable {
         states = newStates;
         this.width = width;
         this.height = height;
+        setChanged();
+        notifyObservers();
     }
 
     public boolean checkSize(int width, int height) throws ChangeParamsError {

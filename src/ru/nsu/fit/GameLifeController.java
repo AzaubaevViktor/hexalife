@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -19,8 +20,9 @@ class GameLifeFrame extends MainFrame {
     private final ModelSettings modelSettings;
     private final HexagonalPanel hexagonalPanel;
     private final Model model;
+    private final ErrorWindow errorWindow;
     private JFrame about;
-    private final JFrame viewSettings;
+    private final ViewSettings viewSettings;
 
     private Timer modelTimer;
     private JMenuItem startMenu;
@@ -37,23 +39,24 @@ class GameLifeFrame extends MainFrame {
             e.printStackTrace();
         }
         createAboutFrame();
-        viewSettings = new viewSettings(this.hexagonalPanel);
+        viewSettings = new ViewSettings(this.hexagonalPanel);
         modelSettings = new ModelSettings(model, this.hexagonalPanel);
+        errorWindow = new ErrorWindow();
     }
 
     private void createAllMenus() throws NoSuchMethodException {
         addSubMenu("File", KeyEvent.VK_F);
-        addSubMenu("File/New", KeyEvent.VK_N);
-        addSubMenu("File/Open", KeyEvent.VK_O);
+        addMenuItem("File/New", "Create new field", KeyEvent.VK_N, "clearField");
+        addMenuItem("File/Open", "Open Field file", KeyEvent.VK_O, "openFile");
         addSubMenu("File/Save", KeyEvent.VK_S);
         addMenuItem("File/Exit", "Exit", KeyEvent.VK_E, "exit");
         addSubMenu("Edit", KeyEvent.VK_E);
         addMenuItem("Edit/Clear", "Clear field", KeyEvent.VK_E, "clearField");
-        addMenuItem("Edit/Model", "Show model viewSettings", KeyEvent.VK_M, "showModelSettings");
+        addMenuItem("Edit/Model", "Show model ViewSettings", KeyEvent.VK_M, "showModelSettings");
         addSubMenu("View", KeyEvent.VK_V);
         addMenuItem("View/Step", "Do step", KeyEvent.VK_E, "doStep");
         addMenuItem("View/Start", "StartPause", KeyEvent.VK_E, "startStopModel");
-        addMenuItem("View/Settings", "Show viewSettings window", KeyEvent.VK_E, "showViewSettings");
+        addMenuItem("View/Settings", "Show ViewSettings window", KeyEvent.VK_E, "showViewSettings");
         addSubMenu("Help", KeyEvent.VK_H);
         addMenuItem("Help/About", "Show About Window", KeyEvent.VK_E, "showAbout");
 
@@ -101,6 +104,42 @@ class GameLifeFrame extends MainFrame {
         }
     }
 
+    public void openFile() {
+        File file = getOpenFileName(".hl", "Open HexaLife file");
+        if (file == null)
+            return;
+
+        System.out.println(file.toString());
+
+        try {
+            FileParser fileParser = new FileParser(file);
+            fileParser.parse();
+            // For model
+            model.clear();
+            model.checkSize(fileParser.width, fileParser.height);
+            model.changeSize(fileParser.width, fileParser.height);
+            for (Vec2dI cell: fileParser.cells) {
+                model.set(cell, true);
+            }
+            // For controller view settings
+            modelSettings.setParams(fileParser.width, fileParser.height);
+
+            // Draw Params
+            hexagonalPanel.setGridSize(fileParser.width, fileParser.height);
+            hexagonalPanel.setDrawParams(fileParser.hexaWidthR, fileParser.lineThickness);
+
+            // For controller model settings
+            viewSettings.setParams(fileParser.hexaWidthR, fileParser.lineThickness);
+
+        } catch (FileParserError fileParserError) {
+            errorWindow.setErrorLabel(fileParserError.toString());
+            errorWindow.setVisible(true);
+        } catch (ChangeParamsError changeParamsError) {
+            errorWindow.setErrorLabel(changeParamsError.toString());
+            errorWindow.setVisible(true);
+        }
+    }
+
     public void showAbout() { about.setVisible(true); }
 
     public void clearField() { model.clear(); }
@@ -113,7 +152,7 @@ class GameLifeFrame extends MainFrame {
 }
 
 
-class viewSettings extends JFrame implements ChangeListener, PropertyChangeListener {
+class ViewSettings extends JFrame implements ChangeListener, PropertyChangeListener {
 
     private final HexagonalPanel hexagonalPanel;
     private final JFormattedTextField hexaWidthRInput;
@@ -121,7 +160,7 @@ class viewSettings extends JFrame implements ChangeListener, PropertyChangeListe
     private final JFormattedTextField lineThInput;
     private final JSlider lineThSlider;
 
-    viewSettings(HexagonalPanel hexagonalPanel) {
+    public ViewSettings(HexagonalPanel hexagonalPanel) {
         this.hexagonalPanel = hexagonalPanel;
         this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         this.setLayout(new GridLayout(3, 3));
@@ -161,6 +200,11 @@ class viewSettings extends JFrame implements ChangeListener, PropertyChangeListe
 
         this.add(xorModeCheckBox);
         this.add(displayImpactCheckBox);
+    }
+
+    public void setParams(int hexaWidthR, int lineTh) {
+        hexaWidthRInput.setValue(hexaWidthR);
+        lineThInput.setValue(lineTh);
     }
 
     @Override
@@ -262,6 +306,11 @@ class ModelSettings extends JFrame implements ActionListener, PropertyChangeList
         this.add(errorLabel);
     }
 
+    public void setParams(int width, int height) {
+        widthInput.setValue(width);
+        heightInput.setValue(height);
+    }
+
     private JFormattedTextField addLabelField(String label, Object value, String name) {
         JLabel jLabel = new JLabel(label);
         JFormattedTextField ftf = new JFormattedTextField(value);
@@ -325,5 +374,22 @@ class ModelSettings extends JFrame implements ActionListener, PropertyChangeList
         globalEnabled = b;
         applyButton.setEnabled(b);
         errorLabel.setText(msg);
+    }
+}
+
+class ErrorWindow extends JFrame {
+    private final JLabel errorLabel;
+
+    ErrorWindow() {
+        this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        this.setLayout(new GridLayout(2, 1));
+        this.setSize(400, 100);
+        this.add(new JLabel("ОШИБКА:", JLabel.CENTER));
+        errorLabel = new JLabel("", JLabel.CENTER);
+        this.add(errorLabel);
+    }
+
+    public void setErrorLabel(String s) {
+        errorLabel.setText(s);
     }
 }
