@@ -31,6 +31,9 @@ class GameLifeFrame extends MainFrame {
     private Timer modelTimer;
     private JMenuItem startMenu;
     private Color defaultBackground;
+    private ImageIcon startIcon;
+    private ImageIcon pauseIcon;
+    private JButton startButton;
 
     GameLifeFrame(int x, int y, String title, Model model, HexagonalPanel hexagonalPanel) {
         super(x, y, title);
@@ -39,6 +42,7 @@ class GameLifeFrame extends MainFrame {
 
         try {
             createAllMenus();
+            createToolbar();
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
@@ -48,23 +52,39 @@ class GameLifeFrame extends MainFrame {
         errorWindow = new ErrorWindow();
     }
 
+    private void createToolbar() {
+        addToolBarButton("File/New");
+        addToolBarButton("File/Open");
+        addToolBarButton("File/Save");
+        addToolBarSeparator();
+        addToolBarButton("View/Step");
+        startButton = addToolBarButton("View/Start");
+        addToolBarSeparator();
+        addToolBarButton("File/Exit");
+
+    }
+
     private void createAllMenus() throws NoSuchMethodException {
+        startIcon = new ImageIcon(getClass().getResource("resources/play.png"), "Start");
+        pauseIcon = new ImageIcon(getClass().getResource("resources/pause.png"), "Pause");
+
         addSubMenu("File", KeyEvent.VK_F);
-        addMenuItem("File/New", "Create new field", KeyEvent.VK_N, "clearField");
-        addMenuItem("File/Open", "Open Field file", KeyEvent.VK_O, "openFile");
-        addMenuItem("File/Save", "Save Field to file", KeyEvent.VK_S, "saveFile");
-        addMenuItem("File/Exit", "Exit", KeyEvent.VK_E, "exit");
+        addMenuItem("File/New", "Create new field", KeyEvent.VK_N, "file-empty.png", "clearField");
+        addMenuItem("File/Open", "Open Field file", KeyEvent.VK_O, "folder-open.png", "openFile");
+        addMenuItem("File/Save", "Save Field to file", KeyEvent.VK_S, "floppy-disk.png", "saveFile");
+        addMenuItem("File/Exit", "Exit", KeyEvent.VK_E, "exit.png", "exit");
         addSubMenu("Edit", KeyEvent.VK_E);
-        addMenuItem("Edit/Clear", "Clear field", KeyEvent.VK_E, "clearField");
-        addMenuItem("Edit/Model", "Show model ViewSettings", KeyEvent.VK_M, "showModelSettings");
+        addMenuItem("Edit/Clear", "Clear field", KeyEvent.VK_E, "clear-formatting.png", "clearField");
+        addMenuItem("Edit/Model", "Show model ViewSettings", KeyEvent.VK_M, "cog.png", "showModelSettings");
         addSubMenu("View", KeyEvent.VK_V);
-        addMenuItem("View/Step", "Do step", KeyEvent.VK_E, "doStep");
+        addMenuItem("View/Step", "Do step", KeyEvent.VK_E, "next.png", "doStep");
         addMenuItem("View/Start", "StartPause", KeyEvent.VK_E, "startStopModel");
-        addMenuItem("View/Settings", "Show ViewSettings window", KeyEvent.VK_E, "showViewSettings");
+        addMenuItem("View/Settings", "Show ViewSettings window", KeyEvent.VK_E, "equalizer.png", "showViewSettings");
         addSubMenu("Help", KeyEvent.VK_H);
-        addMenuItem("Help/About", "Show About Window", KeyEvent.VK_E, "showAbout");
+        addMenuItem("Help/About", "Show About Window", KeyEvent.VK_E, "lifebuoy.png", "showAbout");
 
         startMenu = (JMenuItem) getMenuElement("View/Start");
+        startMenu.setIcon(startIcon);
         defaultBackground = startMenu.getBackground();
     }
 
@@ -103,7 +123,7 @@ class GameLifeFrame extends MainFrame {
     }
 
     public void saveFile() {
-        File file = getOpenFileName("hl", "Save HexaLife file");
+        File file = getSaveFileName("hl", "Save HexaLife file");
         if (file == null)
             return;
 
@@ -173,6 +193,8 @@ class GameLifeFrame extends MainFrame {
             modelSettings.setEnabled(true, "");
             startMenu.setBackground(defaultBackground);
             startMenu.setText("Start");
+            startMenu.setIcon(startIcon);
+            startButton.setIcon(startIcon);
         } else {
             modelTimer = new Timer();
 
@@ -186,6 +208,8 @@ class GameLifeFrame extends MainFrame {
             modelSettings.setEnabled(false, "Нельзя изменять работающую модель");
             startMenu.setBackground(Color.green);
             startMenu.setText("Stop");
+            startMenu.setIcon(pauseIcon);
+            startButton.setIcon(pauseIcon);
         }
     }
 
@@ -215,6 +239,7 @@ class ViewSettings extends JFrame implements ChangeListener, PropertyChangeListe
     private final JSlider lineThSlider;
 
     public ViewSettings(HexagonalPanel hexagonalPanel) {
+        // Menu
         this.hexagonalPanel = hexagonalPanel;
         this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         this.setLayout(new GridLayout(3, 3));
@@ -254,6 +279,9 @@ class ViewSettings extends JFrame implements ChangeListener, PropertyChangeListe
 
         this.add(xorModeCheckBox);
         this.add(displayImpactCheckBox);
+
+        // Toolbar
+
     }
 
     public void setParams(int hexaWidthR, int lineTh) {

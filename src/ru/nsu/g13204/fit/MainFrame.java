@@ -22,8 +22,7 @@ public class MainFrame extends JFrame {
 	/**
 	 * Default constructor which sets up L&F and creates tool-bar and menu-bar 
 	 */
-	public MainFrame()
-	{
+	public MainFrame() {
 		try {
 			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 		}
@@ -43,16 +42,14 @@ public class MainFrame extends JFrame {
 	 * @param y - vertical size of newly created window
 	 * @param title - window title
 	 */
-	public MainFrame(int x, int y, String title)
-	{
+	public MainFrame(int x, int y, String title) {
 		this();
 		setSize(x, y);
 		setLocationByPlatform(true);
 		setTitle(title);
 	}
 
-	public JMenuItem modifyMenuItem(JMenuItem item, String title, String tooltip, int mnemonic, String icon, String actionMethod) throws SecurityException, NoSuchMethodException
-	{
+	public JMenuItem modifyMenuItem(JMenuItem item, String title, String tooltip, int mnemonic, String icon, String actionMethod) throws SecurityException, NoSuchMethodException  {
 		item.setMnemonic(mnemonic);
 		item.setToolTipText(tooltip);
 		if(icon != null)
@@ -72,14 +69,12 @@ public class MainFrame extends JFrame {
 		return item;
 	}
 
-    public JMenuItem createMenuItem(String title, String tooltip, int mnemonic, String icon, String actionMethod) throws SecurityException, NoSuchMethodException
-    {
-        return modifyMenuItem(new JMenuItem(title), title, tooltip, mnemonic, null, actionMethod);
+    public JMenuItem createMenuItem(String title, String tooltip, int mnemonic, String icon, String actionMethod) throws SecurityException, NoSuchMethodException  {
+        return modifyMenuItem(new JMenuItem(title), title, tooltip, mnemonic, icon, actionMethod);
     }
 
-    public JMenuItem createMenuItem(JMenuItem item, String title, String tooltip, int mnemonic, String icon, String actionMethod) throws SecurityException, NoSuchMethodException
-    {
-        return modifyMenuItem(item, title, tooltip, mnemonic, null, actionMethod);
+    public JMenuItem createMenuItem(JMenuItem item, String title, String tooltip, int mnemonic, String icon, String actionMethod) throws SecurityException, NoSuchMethodException  {
+        return modifyMenuItem(item, title, tooltip, mnemonic, icon, actionMethod);
     }
 
 	
@@ -94,8 +89,7 @@ public class MainFrame extends JFrame {
 	 * @throws NoSuchMethodException - when actionMethod method not found
 	 * @throws SecurityException - when actionMethod method is inaccessible
 	 */
-	public JMenuItem createMenuItem(String title, String tooltip, int mnemonic, String actionMethod) throws SecurityException, NoSuchMethodException
-	{
+	public JMenuItem createMenuItem(String title, String tooltip, int mnemonic, String actionMethod) throws SecurityException, NoSuchMethodException  {
 		return createMenuItem(title, tooltip, mnemonic, null, actionMethod);
 	}
 
@@ -105,8 +99,7 @@ public class MainFrame extends JFrame {
 	 * @param mnemonic - mnemonic key to activate submenu via keyboard
 	 * @return created submenu
 	 */
-	public JMenu createSubMenu(String title, int mnemonic)
-	{
+	public JMenu createSubMenu(String title, int mnemonic) {
 		JMenu menu = new JMenu(title);
 		menu.setMnemonic(mnemonic);
 		return menu;
@@ -292,11 +285,13 @@ public class MainFrame extends JFrame {
 
 	/**
 	 * Creates toolbar button which will behave exactly like specified menuitem and adds it to the toolbar
-	 * @param menuPath - path to menu item to create toolbar button from
-	 */
-	public void addToolBarButton(String menuPath)
+     * @param menuPath - path to menu item to create toolbar button from
+     */
+	public JButton addToolBarButton(String menuPath)
 	{
-		toolBar.add(createToolBarButton(menuPath));
+        JButton button = createToolBarButton(menuPath);
+		toolBar.add(button);
+        return button;
 	}
 
 	/**
