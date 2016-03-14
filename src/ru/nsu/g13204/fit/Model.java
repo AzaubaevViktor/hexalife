@@ -1,7 +1,7 @@
-package ru.nsu.fit;
+package ru.nsu.g13204.fit;
 
 import java.util.Observable;
-import ru.nsu.fit.pixel2d.vectors.Vec2dI;
+import ru.nsu.g13204.fit.pixel2d.vectors.Vec2dI;
 
 import java.util.ArrayList;
 import java.util.List;

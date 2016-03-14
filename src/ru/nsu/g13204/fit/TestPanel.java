@@ -1,8 +1,8 @@
 //package ru.nsu.fit;
 //
-//import ru.nsu.fit.pixel2d.PixelDrawer;
-//import ru.nsu.fit.pixel2d.vectors.Vec2d;
-//import ru.nsu.fit.pixel2d.vectors.Vec2dI;
+//import PixelDrawer;
+//import Vec2d;
+//import Vec2dI;
 //
 //import javax.swing.*;
 //import java.awt.*;

@@ -1,4 +1,4 @@
-package ru.nsu.fit.pixel2d.vectors;
+package ru.nsu.g13204.fit.pixel2d.vectors;
 
 public class BasicLine {
     private int thickness;

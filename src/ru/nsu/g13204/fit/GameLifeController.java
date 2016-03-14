@@ -1,7 +1,7 @@
-package ru.nsu.fit;
+package ru.nsu.g13204.fit;
 
 
-import ru.nsu.fit.pixel2d.vectors.Vec2dI;
+import ru.nsu.g13204.fit.pixel2d.vectors.Vec2dI;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -66,7 +66,7 @@ class GameLifeFrame extends MainFrame {
 
     private void createAboutFrame() {
         about = new JFrame("About");
-        about.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        about.setDefaultCloseOperation(HIDE_ON_CLOSE);
         about.setSize(400, 100);
         JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout());

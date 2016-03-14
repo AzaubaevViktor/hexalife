@@ -1,4 +1,4 @@
-package ru.nsu.fit;
+package ru.nsu.g13204.fit;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;

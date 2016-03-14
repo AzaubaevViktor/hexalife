@@ -1,70 +1,70 @@
-package ru.nsu.fit.pixel2d.vectors;
+package ru.nsu.g13204.fit.pixel2d.vectors;
 
-public class Vec2dI {
-    // Класс для работы с ТОЧКАМИ НА ЭКРАНЕ. Особенность в целочисленности
-    private int x = 0;
-    private int y = 0;
+public class Vec2d {
+    private double x = 0;
+    private double y = 0;
 
-    public Vec2dI(int x, int y) {
+    public Vec2d(double x, double y) {
         this.x = x;
         this.y = y;
     }
 
-    public Vec2dI(Vec2dI p0) {
-        set(p0);
-    }
-    
-    public Vec2dI(Vec2d v) {
-        set(v);
+    public Vec2d(Vec2d p0) {
+        x = p0.getX();
+        y = p0.getY();
     }
 
-    public int getX() {
+    public Vec2d(Vec2dI dp) {
+        x = dp.getX();
+        y = dp.getY();
+    }
+
+    public double getX() {
         // Если тут будет более сложная логика, не забывать переделать везде на getX()
         return x;
     }
 
-    public int getY() {
+    public double getY() {
         // Если тут будет более сложная логика, не забывать переделать везде на getY()
         return y;
     }
 
-    public void setX(int newX) {
+    public void setX(double newX) {
         // Если тут будет более сложная логика, не забывать переделать везде на setX()
         x = newX;
     }
 
-    public void setY(int newY) {
+    public void setY(double newY) {
         // Если тут будет более сложная логика, не забывать переделать везде на setY()
         y = newY;
     }
 
-    public void set(Vec2dI other) {
+    public void set(Vec2d other) {
         x = other.x;
         y = other.y;
     }
 
-    public void set(Vec2d other) {
-        x = (int) other.getX();
-        y = (int) other.getY();
+    public double[] getArr() {
+        return new double[]{x, y};
     }
 
     public void reflect() {
-        int res = y;
+        double res = y;
         //noinspection SuspiciousNameCombination
         y = x;
         x = res;
     }
 
-    public boolean isXmore(Vec2dI other) {
+    public boolean isXmore(Vec2d other) {
         return x > other.x;
     }
 
-    public Vec2dI minus(Vec2dI other) {
-        return new Vec2dI(x - other.x, y - other.y);
+    public Vec2d minus(Vec2d other) {
+        return new Vec2d(x - other.x, y - other.y);
     }
 
-    public Vec2dI multiple(int other) {
-        return new Vec2dI((x * other), (y * other));
+    public Vec2d multiple(double other) {
+        return new Vec2d((x * other), (y * other));
     }
 
     public void turnBack() {
@@ -73,21 +73,32 @@ public class Vec2dI {
         y = -y;
     }
 
-    public Vec2dI normal() {
+    public Vec2d normal() {
         // Возвращает нормаль, которая всегда смотрит вверх (в сторону увеличения координаты y
         //noinspection SuspiciousNameCombination
-        Vec2dI normalVec = new Vec2dI(-y, x);
+        Vec2d normalVec = new Vec2d(-y, x);
         if (x < 0) normalVec.turnBack();
         return normalVec;
     }
 
+    public void normalization() {
+        double len = length();
+        x /= len;
+        y /= len;
+    }
+
     public void move(Vec2d other) {
+        x += other.x;
+        y += other.y;
+    }
+
+    public void move(Vec2dI other) {
         x += other.getX();
         y += other.getY();
     }
 
-    public void swap(Vec2dI other) {
-        int res = x;
+    public void swap(Vec2d other) {
+        double res = x;
         x = other.x;
         other.x = res;
 
@@ -96,36 +107,27 @@ public class Vec2dI {
         other.y = res;
     }
 
-    public int dy(Vec2dI other) {
+    public double length() {
+        return Math.sqrt(x * x + y * y);
+    }
+
+    public double dy(Vec2d other) {
         return y - other.y;
     }
 
-    public int dx(Vec2dI other) {
+    public double dx(Vec2d other) {
         return x - other.x;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Vec2dI other = (Vec2dI) obj;
-        return equals(other);
-    }
-
-    public boolean equals(Vec2dI other) {
+    public boolean eq(Vec2d other) {
         return x == other.x && y == other.y;
     }
 
-    public Vec2dI copy() {
-        return new Vec2dI(x, y);
+    public Vec2d copy() {
+        return new Vec2d(x, y);
     }
 
     public String toString() {
-        return "(" + Integer.toString(x) + "; "  + Integer.toString(y) + ")";
+        return "(" + Double.toString(x) + "; "  + Double.toString(y) + ")";
     }
-
 }

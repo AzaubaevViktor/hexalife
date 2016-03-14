@@ -1,9 +1,9 @@
-package ru.nsu.fit;
+package ru.nsu.g13204.fit;
 
-public class ChangeParamsError extends Throwable {
+public class FileParserError extends Throwable {
     private final String msg;
 
-    ChangeParamsError(String msg) {
+    FileParserError(String msg) {
         this.msg = msg;
     }
 

@@ -1,4 +1,4 @@
-package ru.nsu.fit;
+package ru.nsu.g13204.fit;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;

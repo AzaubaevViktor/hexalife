@@ -1,7 +1,7 @@
-package ru.nsu.fit;
-import ru.nsu.fit.pixel2d.PixelDrawer;
-import ru.nsu.fit.pixel2d.vectors.Vec2d;
-import ru.nsu.fit.pixel2d.vectors.Vec2dI;
+package ru.nsu.g13204.fit;
+import ru.nsu.g13204.fit.pixel2d.PixelDrawer;
+import ru.nsu.g13204.fit.pixel2d.vectors.Vec2d;
+import ru.nsu.g13204.fit.pixel2d.vectors.Vec2dI;
 
 import javax.swing.*;
 import java.awt.*;
