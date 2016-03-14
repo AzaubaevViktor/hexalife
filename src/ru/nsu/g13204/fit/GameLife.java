@@ -96,6 +96,10 @@ class HexagonalPanel extends JPanel implements Observer {
         updateCanvas();
     }
 
+    public int[] getDrawParams() {
+        return new int[]{hexaWidthR, lineThickness};
+    }
+
     public void setGridSize(int width, int height) {
         hexCheck.width = this.width = width;
         hexCheck.height = this.height = height;

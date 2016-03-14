@@ -12,9 +12,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
+import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
 
 class GameLifeFrame extends MainFrame {
     private final ModelSettings modelSettings;
@@ -48,7 +52,7 @@ class GameLifeFrame extends MainFrame {
         addSubMenu("File", KeyEvent.VK_F);
         addMenuItem("File/New", "Create new field", KeyEvent.VK_N, "clearField");
         addMenuItem("File/Open", "Open Field file", KeyEvent.VK_O, "openFile");
-        addSubMenu("File/Save", KeyEvent.VK_S);
+        addMenuItem("File/Save", "Save Field to file", KeyEvent.VK_S, "saveFile");
         addMenuItem("File/Exit", "Exit", KeyEvent.VK_E, "exit");
         addSubMenu("Edit", KeyEvent.VK_E);
         addMenuItem("Edit/Clear", "Clear field", KeyEvent.VK_E, "clearField");
@@ -64,52 +68,10 @@ class GameLifeFrame extends MainFrame {
         defaultBackground = startMenu.getBackground();
     }
 
-    private void createAboutFrame() {
-        about = new JFrame("About");
-        about.setDefaultCloseOperation(HIDE_ON_CLOSE);
-        about.setSize(400, 100);
-        JPanel panel = new JPanel();
-        panel.setLayout(new FlowLayout());
-        panel.add(new JLabel("Life game prototype |"));
-        panel.add(new JLabel("FIT NSU, Korovin 13204 @2016"));
-        about.setContentPane(panel);
-    }
-
-    public void doStep() {
-        modelSettings.setEnabled(false, "Нельзя изменять работающую модель");
-        model.step();
-        modelSettings.setEnabled(true, "");
-    }
-
-    public void startStopModel() {
-        if (model.isRun) {
-            modelTimer.cancel();
-            model.isRun = false;
-            modelSettings.setEnabled(true, "");
-            startMenu.setBackground(defaultBackground);
-            startMenu.setText("Start");
-        } else {
-            modelTimer = new Timer();
-
-            modelTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    model.step();
-                }
-            }, 0, 100);
-            model.isRun = true;
-            modelSettings.setEnabled(false, "Нельзя изменять работающую модель");
-            startMenu.setBackground(Color.green);
-            startMenu.setText("Stop");
-        }
-    }
-
     public void openFile() {
-        File file = getOpenFileName(".hl", "Open HexaLife file");
+        File file = getOpenFileName("hl", "Open HexaLife file");
         if (file == null)
             return;
-
-        System.out.println(file.toString());
 
         try {
             FileParser fileParser = new FileParser(file);
@@ -140,15 +102,107 @@ class GameLifeFrame extends MainFrame {
         }
     }
 
-    public void showAbout() { about.setVisible(true); }
+    public void saveFile() {
+        File file = getOpenFileName("hl", "Save HexaLife file");
+        if (file == null)
+            return;
+
+        if (file.exists()) {
+            if (file.delete()) {
+                errorWindow.setErrorLabel("Невозможно перезаписать файл");
+                errorWindow.setVisible(true);
+                return;
+            }
+        }
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            errorWindow.setErrorLabel("Невозможно создать файл");
+            errorWindow.setVisible(true);
+            return;
+        }
+
+        if (!file.canWrite()) {
+            errorWindow.setErrorLabel("Невозможно произвести запись в файл");
+            errorWindow.setVisible(true);
+            return;
+        }
+
+        BufferedWriter out;
+
+        try {
+            out = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
+
+            Vec2dI modelSize = model.getSize();
+            out.write(Integer.toString(modelSize.getX()) + " " + modelSize.getY() + "\n");
+
+            int[] drawParams = hexagonalPanel.getDrawParams();
+            out.write(Integer.toString(drawParams[0]) + "\n");
+            out.write(Integer.toString(drawParams[1]) + "\n");
+
+            List<Vec2dI> states = model.getStates();
+            out.write(Integer.toString(states.size()) + "\n");
+            for (Vec2dI state: states) {
+                out.write(Integer.toString(state.getX()) + " " + Integer.toString(state.getY()) + "\n");
+            }
+
+            out.close();
+        } catch (IOException e) {
+            file.delete();
+            errorWindow.setErrorLabel(e.toString());
+            errorWindow.setVisible(true);
+        }
+    }
+
+    public void exit() { System.exit(0); }
 
     public void clearField() { model.clear(); }
 
-    public void showViewSettings() { viewSettings.setVisible(true); }
-
     public void showModelSettings() { modelSettings.setVisible(true); }
 
-    public void exit() { System.exit(0); }
+    public void doStep() {
+        modelSettings.setEnabled(false, "Нельзя изменять работающую модель");
+        model.step();
+        modelSettings.setEnabled(true, "");
+    }
+
+    public void startStopModel() {
+        if (model.isRun) {
+            modelTimer.cancel();
+            model.isRun = false;
+            modelSettings.setEnabled(true, "");
+            startMenu.setBackground(defaultBackground);
+            startMenu.setText("Start");
+        } else {
+            modelTimer = new Timer();
+
+            modelTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    model.step();
+                }
+            }, 0, 100);
+            model.isRun = true;
+            modelSettings.setEnabled(false, "Нельзя изменять работающую модель");
+            startMenu.setBackground(Color.green);
+            startMenu.setText("Stop");
+        }
+    }
+
+    public void showViewSettings() { viewSettings.setVisible(true); }
+
+    public void showAbout() { about.setVisible(true); }
+
+    private void createAboutFrame() {
+        about = new JFrame("About");
+        about.setDefaultCloseOperation(HIDE_ON_CLOSE);
+        about.setSize(400, 100);
+        JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout());
+        panel.add(new JLabel("Life game prototype |"));
+        panel.add(new JLabel("FIT NSU, Korovin 13204 @2016"));
+        about.setContentPane(panel);
+    }
 }
 
 
